@@ -6,13 +6,19 @@ import org.zhupanovdm.microbus.micromod.spawner.MethodSpawner;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModuleManager {
-    private final Map<Class<? extends InstanceProvider>, InstanceProvider> instanceProviders = new ConcurrentHashMap<>();
-    private final ModuleRegistry registry = new ModuleRegistry();
+    private final Map<Class<? extends InstanceProvider>, InstanceProvider> instanceProviders;
+    private final ModuleRegistry registry;
+
+    public ModuleManager(ModuleRegistry registry) {
+        this.instanceProviders = new ConcurrentHashMap<>();
+        this.registry = registry;
+    }
 
     public void registerInstanceProvider(InstanceProvider provider) {
         instanceProviders.put(provider.getClass(), provider);
@@ -48,6 +54,8 @@ public class ModuleManager {
         if (module == null) {
             throw new IllegalStateException("Cannot satisfy dependency " + query);
         }
+        if (query.getChain() == null)
+            query.withChain(new LinkedHashSet<>());
         return module.getSpawner().spawn(query.getChain());
     }
 

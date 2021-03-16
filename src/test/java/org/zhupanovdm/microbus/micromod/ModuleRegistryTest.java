@@ -7,8 +7,7 @@ import org.zhupanovdm.microbus.micromod.spawner.InstanceProvider;
 import org.zhupanovdm.microbus.samples.sample01.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -34,7 +33,7 @@ class ModuleRegistryTest {
     void register() {
         Module another;
         registry.register(another = new Module("another", NotRegistered.class, InstanceProvider.Singleton.class));
-        assertThat(registry.request(ModuleQuery.create("another")), is(another));
+        assertThat(registry.request(ModuleQuery.create("another")), sameInstance(another));
     }
 
     @Test
@@ -66,17 +65,17 @@ class ModuleRegistryTest {
     @Test
     @DisplayName("Query module by ID only")
     void queryById() {
-        assertThat(registry.request(ModuleQuery.create("ancestor")), is(modAncestor));
-        assertThat(registry.request(ModuleQuery.create("child")), is(modChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild")), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("iFace")), is(modIFace));
+        assertThat(registry.request(ModuleQuery.create("ancestor")), sameInstance(modAncestor));
+        assertThat(registry.request(ModuleQuery.create("child")), sameInstance(modChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild")), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("iFace")), sameInstance(modIFace));
         assertNull(registry.request(ModuleQuery.create("notRegistered")));
     }
 
     @Test
     @DisplayName("Query module by type only")
     void queryByType() {
-        assertThat(registry.request(ModuleQuery.create(GrandChild.class)), is(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create(GrandChild.class)), sameInstance(modGrandChild));
         assertNull(registry.request(ModuleQuery.create(NotRegistered.class)));
     }
 
@@ -113,60 +112,60 @@ class ModuleRegistryTest {
     @Test
     @DisplayName("Query module by id & type")
     void queryByIdAndType() {
-        assertThat(registry.request(ModuleQuery.create("ancestor", Ancestor.class)), is(modAncestor));
+        assertThat(registry.request(ModuleQuery.create("ancestor", Ancestor.class)), sameInstance(modAncestor));
         assertThrows(IllegalStateException.class, () -> registry.request(ModuleQuery.create("ancestor", Child.class)));
-        assertThat(registry.request(ModuleQuery.create("ancestor", GrandChild.class)), is(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("ancestor", GrandChild.class)), sameInstance(modGrandChild));
         assertThrows(IllegalStateException.class, () -> registry.request(ModuleQuery.create("ancestor", IFace.class)));
         assertThrows(IllegalStateException.class, () -> registry.request(ModuleQuery.create("ancestor", SuperIFace.class)));
         assertNull(registry.request(ModuleQuery.create("ancestor", NotRegistered.class)));
 
-        assertThat(registry.request(ModuleQuery.create("ancestor", Ancestor.class, true)), is(modAncestor));
+        assertThat(registry.request(ModuleQuery.create("ancestor", Ancestor.class, true)), sameInstance(modAncestor));
         assertNull(registry.request(ModuleQuery.create("ancestor", Child.class, true)));
         assertNull(registry.request(ModuleQuery.create("ancestor", GrandChild.class, true)));
         assertNull(registry.request(ModuleQuery.create("ancestor", IFace.class, true)));
         assertNull(registry.request(ModuleQuery.create("ancestor", SuperIFace.class, true)));
         assertNull(registry.request(ModuleQuery.create("ancestor", NotRegistered.class, true)));
 
-        assertThat(registry.request(ModuleQuery.create("child", Ancestor.class)), is(modChild));
-        assertThat(registry.request(ModuleQuery.create("child", Child.class)), is(modChild));
-        assertThat(registry.request(ModuleQuery.create("child", GrandChild.class)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("child", IFace.class)), is(modChild));
-        assertThat(registry.request(ModuleQuery.create("child", SuperIFace.class)), is(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", Ancestor.class)), sameInstance(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", Child.class)), sameInstance(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", GrandChild.class)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("child", IFace.class)), sameInstance(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", SuperIFace.class)), sameInstance(modChild));
         assertNull(registry.request(ModuleQuery.create("child", NotRegistered.class)));
 
-        assertThat(registry.request(ModuleQuery.create("child", Ancestor.class, true)), is(modChild));
-        assertThat(registry.request(ModuleQuery.create("child", Child.class, true)), is(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", Ancestor.class, true)), sameInstance(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", Child.class, true)), sameInstance(modChild));
         assertNull(registry.request(ModuleQuery.create("child", GrandChild.class, true)));
-        assertThat(registry.request(ModuleQuery.create("child", IFace.class, true)), is(modChild));
-        assertThat(registry.request(ModuleQuery.create("child", SuperIFace.class, true)), is(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", IFace.class, true)), sameInstance(modChild));
+        assertThat(registry.request(ModuleQuery.create("child", SuperIFace.class, true)), sameInstance(modChild));
         assertNull(registry.request(ModuleQuery.create("child", NotRegistered.class, true)));
 
-        assertThat(registry.request(ModuleQuery.create("grandChild", Ancestor.class)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", Child.class)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", GrandChild.class)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", IFace.class)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", SuperIFace.class)), is(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", Ancestor.class)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", Child.class)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", GrandChild.class)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", IFace.class)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", SuperIFace.class)), sameInstance(modGrandChild));
         assertNull(registry.request(ModuleQuery.create("grandChild", NotRegistered.class)));
 
-        assertThat(registry.request(ModuleQuery.create("grandChild", Ancestor.class, true)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", Child.class, true)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", GrandChild.class, true)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", IFace.class, true)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("grandChild", SuperIFace.class, true)), is(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", Ancestor.class, true)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", Child.class, true)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", GrandChild.class, true)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", IFace.class, true)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("grandChild", SuperIFace.class, true)), sameInstance(modGrandChild));
         assertNull(registry.request(ModuleQuery.create("grandChild", NotRegistered.class, true)));
 
         assertThrows(IllegalStateException.class, () -> registry.request(ModuleQuery.create("iFace", Ancestor.class)));
         assertThrows(IllegalStateException.class, () -> registry.request(ModuleQuery.create("iFace", Child.class)));
-        assertThat(registry.request(ModuleQuery.create("iFace", GrandChild.class)), is(modGrandChild));
-        assertThat(registry.request(ModuleQuery.create("iFace", IFace.class)), is(modIFace));
-        assertThat(registry.request(ModuleQuery.create("iFace", SuperIFace.class)), is(modIFace));
+        assertThat(registry.request(ModuleQuery.create("iFace", GrandChild.class)), sameInstance(modGrandChild));
+        assertThat(registry.request(ModuleQuery.create("iFace", IFace.class)), sameInstance(modIFace));
+        assertThat(registry.request(ModuleQuery.create("iFace", SuperIFace.class)), sameInstance(modIFace));
         assertNull(registry.request(ModuleQuery.create("iFace", NotRegistered.class)));
 
         assertNull(registry.request(ModuleQuery.create("iFace", Ancestor.class, true)));
         assertNull(registry.request(ModuleQuery.create("iFace", Child.class, true)));
         assertNull(registry.request(ModuleQuery.create("iFace", GrandChild.class, true)));
-        assertThat(registry.request(ModuleQuery.create("iFace", IFace.class, true)), is(modIFace));
-        assertThat(registry.request(ModuleQuery.create("iFace", SuperIFace.class, true)), is(modIFace));
+        assertThat(registry.request(ModuleQuery.create("iFace", IFace.class, true)), sameInstance(modIFace));
+        assertThat(registry.request(ModuleQuery.create("iFace", SuperIFace.class, true)), sameInstance(modIFace));
         assertNull(registry.request(ModuleQuery.create("iFace", NotRegistered.class, true)));
     }
 

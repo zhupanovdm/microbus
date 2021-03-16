@@ -55,7 +55,7 @@ class SpawnerTest {
         doAnswer(invocation -> {
             ModuleQuery query = invocation.getArgument(0, ModuleQuery.class);
             assertThat(query, isIn(dependencies));
-            assertThat(query.getChain(), is(chain));
+            assertThat(query.getChain(), sameInstance(chain));
             assertThat(query.getChain(), contains(module));
             return query;
         }).when(manager).resolve(any(ModuleQuery.class));

@@ -10,6 +10,7 @@ import java.util.function.Function;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.*;
 
@@ -22,13 +23,13 @@ class InstanceProviderTest {
         Object instance = new Object();
 
         Function<Module, Object> spawner = mockSpawnerFn(m -> {
-            assertThat(m, is(module));
+            assertThat(m, sameInstance(module));
             return instance;
         });
 
         InstanceProvider.Singleton singleton = new InstanceProvider.Singleton();
         for (int i = 0; i < 10; i++) {
-            assertThat(singleton.apply(module, spawner), is(instance));
+            assertThat(singleton.apply(module, spawner), sameInstance(instance));
         }
 
         verify(spawner).apply(eq(module));
@@ -40,7 +41,7 @@ class InstanceProviderTest {
         Module module = new Module("module-id", Object.class, InstanceProvider.Factory.class);
 
         Function<Module, Object> spawner = mockSpawnerFn(m -> {
-            assertThat(m, is(module));
+            assertThat(m, sameInstance(module));
             return new Object();
         });
 

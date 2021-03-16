@@ -7,10 +7,95 @@
     <groupId>org.zhupanovdm</groupId>
     <artifactId>microbus</artifactId>
     <version>0.1</version>
+    <name>micro-bus</name>
+    <description>microBUS</description>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.1-jre</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.8</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.7.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.7.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.7.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.6.28</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-core</artifactId>
+            <version>1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-device</artifactId>
+            <version>1.3</version>
+        </dependency>
+        -->
+
+    </dependencies>
+
+    <!--
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.rogueware.mojo</groupId>
+                <artifactId>ssh-exec-maven-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <sshHost>my-device</sshHost>
+                    <sshUsername>pi</sshUsername>
+                    <sshPassword>raspberry</sshPassword>
+                    <sudo>false</sudo>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    -->
 
 </project>

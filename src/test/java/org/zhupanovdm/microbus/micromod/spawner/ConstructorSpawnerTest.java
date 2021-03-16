@@ -8,8 +8,8 @@ import org.mockito.MockitoAnnotations;
 import org.zhupanovdm.microbus.micromod.Module;
 import org.zhupanovdm.microbus.micromod.ModuleManager;
 import org.zhupanovdm.microbus.micromod.ModuleQuery;
-import org.zhupanovdm.microbus.samples02.TwoConstructors;
-import org.zhupanovdm.microbus.samples02.With3ArgConstructor;
+import org.zhupanovdm.microbus.samples.sample02.TwoConstructors;
+import org.zhupanovdm.microbus.samples.sample02.With3ArgConstructor;
 
 import java.util.HashSet;
 import java.util.Set;

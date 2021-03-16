@@ -1,4 +1,4 @@
-package org.zhupanovdm.microbus.samples02;
+package org.zhupanovdm.microbus.samples.sample02;
 
 @SuppressWarnings("unused")
 public class TwoConstructors {

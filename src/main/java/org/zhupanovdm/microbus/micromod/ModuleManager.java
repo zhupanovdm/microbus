@@ -51,12 +51,4 @@ public class ModuleManager {
         return module.getSpawner().spawn(query.getChain());
     }
 
-    private InstanceProvider getModuleSpawnerStrategy(Class<? extends InstanceProvider> strategyType) {
-        InstanceProvider strategy = instanceProviders.get(strategyType);
-        if (strategy == null) {
-            throw new ModuleException("Module spawning strategy is unknown " + strategyType, null);
-        }
-        return strategy;
-    }
-
 }

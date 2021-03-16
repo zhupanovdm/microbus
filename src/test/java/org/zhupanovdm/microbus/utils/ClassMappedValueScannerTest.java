@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-import org.zhupanovdm.microbus.samples01.Ancestor;
-import org.zhupanovdm.microbus.samples01.Child;
-import org.zhupanovdm.microbus.samples01.GrandChild;
-import org.zhupanovdm.microbus.samples01.SuperIFace;
+import org.zhupanovdm.microbus.samples.sample01.Ancestor;
+import org.zhupanovdm.microbus.samples.sample01.Child;
+import org.zhupanovdm.microbus.samples.sample01.GrandChild;
+import org.zhupanovdm.microbus.samples.sample01.SuperIFace;
 
 import java.util.Collection;
 import java.util.HashSet;

@@ -9,7 +9,7 @@ import org.mockito.MockitoAnnotations;
 import org.zhupanovdm.microbus.micromod.Module;
 import org.zhupanovdm.microbus.micromod.ModuleManager;
 import org.zhupanovdm.microbus.micromod.ModuleQuery;
-import org.zhupanovdm.microbus.samples02.WithNoArgConstructor;
+import org.zhupanovdm.microbus.samples.sample02.WithNoArgConstructor;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -70,7 +70,7 @@ class SpawnerTest {
     }
 
     @Test
-    @DisplayName("Cyclic dependencies is not allowed")
+    @DisplayName("Cyclic dependencies are not allowed")
     void cyclicDependencyFails() {
         Module module = new Module("id", List.class, InstanceProvider.Singleton.class);
         ModuleQuery[] dependencies = { ModuleQuery.create("dependency-1") };

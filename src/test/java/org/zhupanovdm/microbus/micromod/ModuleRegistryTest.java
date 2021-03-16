@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.zhupanovdm.microbus.micromod.spawner.InstanceProvider;
-import org.zhupanovdm.microbus.samples01.*;
+import org.zhupanovdm.microbus.samples.sample01.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;

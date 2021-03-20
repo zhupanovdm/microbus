@@ -2,8 +2,8 @@ package org.zhupanovdm.microbus.micromod.spawner;
 
 import org.zhupanovdm.microbus.micromod.ModuleQuery;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,23 +11,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MethodSpawner implements Spawner {
-    private final Method method;
-    private final String declaringModuleId;
-    private Object declaringModuleObject;
+public class ClassSpawner implements Spawner {
+    private final Constructor<?> constructor;
     private final Object[] args;
 
-    public MethodSpawner(Method method, String declaringModuleId) {
-        this.method = method;
-        this.declaringModuleId = declaringModuleId;
-        this.args = new Object[method.getParameters().length];
+    public ClassSpawner(Class<?> clazz) {
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+        if (constructors.length != 1)
+            throw new IllegalArgumentException("Only one constructor is supported for class spawning: " + clazz);
+        this.constructor = constructors[0];
+        this.args = new Object[constructors[0].getParameters().length];
     }
 
     @Override
     public Collection<ModuleQuery> getDependencies() {
         List<ModuleQuery> dependencies = new LinkedList<>();
-        dependencies.add(ModuleQuery.of(declaringModuleId, method.getDeclaringClass(), true).withInjector(o -> declaringModuleObject = o));
-        Parameter[] parameters = method.getParameters();
+        Parameter[] parameters = constructor.getParameters();
         for (int i = 0; i < parameters.length; i++)
             dependencies.add(ModuleQuery.inject(parameters[i], createArgInjector(i)));
         return Collections.unmodifiableList(dependencies);
@@ -44,14 +43,14 @@ public class MethodSpawner implements Spawner {
 
     private Object instantiate() {
         try {
-            return method.invoke(declaringModuleObject, args);
+            return constructor.newInstance(args);
         } catch (IllegalAccessException e) {
-            method.setAccessible(true);
+            constructor.setAccessible(true);
             Object instance = instantiate();
-            method.setAccessible(false);
+            constructor.setAccessible(false);
             return instance;
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Error on invocation module spawning method: " + method, e);
+        } catch (InstantiationException | InvocationTargetException e) {
+            throw new RuntimeException("Error on invocation spawning constructor: " + constructor, e);
         }
     }
 }

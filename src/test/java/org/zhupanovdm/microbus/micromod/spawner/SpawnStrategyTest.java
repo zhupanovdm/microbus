@@ -14,12 +14,11 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.*;
 
-class InstanceProviderTest {
-
+class SpawnStrategyTest {
     @Test
     @DisplayName("Singleton instantiation")
     void testSingleton() {
-        Module module = new Module("module-id", Object.class, InstanceProvider.Singleton.class);
+        Module module = new Module("module-id", Object.class, SpawnStrategy.Singleton.class);
         Object instance = new Object();
 
         Function<Module, Object> spawner = mockSpawnerFn(m -> {
@@ -27,7 +26,7 @@ class InstanceProviderTest {
             return instance;
         });
 
-        InstanceProvider.Singleton singleton = new InstanceProvider.Singleton();
+        SpawnStrategy.Singleton singleton = new SpawnStrategy.Singleton();
         for (int i = 0; i < 10; i++) {
             assertThat(singleton.apply(module, spawner), sameInstance(instance));
         }
@@ -38,14 +37,14 @@ class InstanceProviderTest {
     @Test
     @DisplayName("Factory instantiation")
     void testFactory() {
-        Module module = new Module("module-id", Object.class, InstanceProvider.Factory.class);
+        Module module = new Module("module-id", Object.class, SpawnStrategy.Factory.class);
 
         Function<Module, Object> spawner = mockSpawnerFn(m -> {
             assertThat(m, sameInstance(module));
             return new Object();
         });
 
-        InstanceProvider.Factory factory = new InstanceProvider.Factory();
+        SpawnStrategy.Factory factory = new SpawnStrategy.Factory();
         Set<Object> result = new HashSet<>();
         for (int i = 0; i < 10; i++)
             assertThat(result.add(factory.apply(module, spawner)), is(true));

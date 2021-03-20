@@ -3,31 +3,28 @@ package org.zhupanovdm.microbus.micromod;
 import lombok.NonNull;
 import org.zhupanovdm.microbus.utils.ClassMappedValueScanner;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ModuleRegistry {
     private final Set<Module> registered = new HashSet<>();
     private final Map<String, Module> names = new HashMap<>();
     private final ClassMappedValueScanner<Module> types = new ClassMappedValueScanner<>(Module::getType);
 
-    public synchronized void register(@NonNull Module module) {
+    public void register(@NonNull Module module) {
         if (!registered.add(module))
             throw new IllegalArgumentException("Module is already registered " + module);
         names.put(module.getId(), module);
         types.put(module);
     }
 
-    public synchronized void unregister(@NonNull Module module) {
+    public void unregister(@NonNull Module module) {
         if (registered.remove(module)) {
             names.remove(module.getId());
             types.remove(module);
         }
     }
 
-    public synchronized Module request(@NonNull ModuleQuery query) {
+    public Module request(@NonNull ModuleQuery query) {
         if (query.hasId()) {
             Module module = names.get(query.getId());
             if (module != null && query.isTypeCompatibleWith(module)) {
@@ -45,4 +42,7 @@ public class ModuleRegistry {
         return discovered.stream().findFirst().orElse(null);
     }
 
+    public Set<Module> getRegisteredModules() {
+        return Collections.unmodifiableSet(registered);
+    }
 }

@@ -1,7 +1,7 @@
 package org.zhupanovdm.microbus.micromod;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 import org.zhupanovdm.microbus.micromod.annotations.Inject;
@@ -9,16 +9,17 @@ import org.zhupanovdm.microbus.micromod.annotations.Inject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
-import java.util.Set;
+import java.util.function.Consumer;
 
-@Getter
+@Data
 @ToString
 @EqualsAndHashCode(of = { "id", "type", "strictId" })
 public class ModuleQuery {
     private String id;
     private final Class<?> type;
     private boolean strictId;
-    private Set<Module> chain;
+
+    private Consumer<Object> injector;
 
     private ModuleQuery(String id, Class<?> type, boolean strictId) {
         this.id = id;
@@ -34,7 +35,7 @@ public class ModuleQuery {
         return id != null && !id.isBlank();
     }
 
-    private ModuleQuery withInjectAnnotation(AnnotatedElement element) {
+    public ModuleQuery withInjectAnnotationOf(AnnotatedElement element) {
         Inject annotation = element.getAnnotation(Inject.class);
         if (annotation != null && !annotation.value().isBlank()) {
             id = annotation.value();
@@ -43,32 +44,39 @@ public class ModuleQuery {
         return this;
     }
 
-    public ModuleQuery withChain(Set<Module> chain) {
-        this.chain = chain;
+    public ModuleQuery withInjector(Consumer<Object> injector) {
+        this.injector = injector;
         return this;
     }
 
-    public static ModuleQuery create(String id) {
-        return create(id, null);
+    public static ModuleQuery of(String id) {
+        return of(id, null);
     }
 
-    public static ModuleQuery create(Class<?> type) {
-        return create(null, type);
+    public static ModuleQuery of(Class<?> type) {
+        return of(null, type);
     }
 
-    public static ModuleQuery create(String id, Class<?> type) {
-        return create(id, type, false);
+    public static ModuleQuery of(String id, Class<?> type) {
+        return of(id, type, false);
     }
 
-    public static ModuleQuery create(String id, Class<?> type, boolean strictId) {
+    public static ModuleQuery of(String id, Class<?> type, boolean strictId) {
         return new ModuleQuery(id, type, strictId);
     }
 
-    public static ModuleQuery create(@NonNull Field field) {
-        return create(field.getName(), field.getType()).withInjectAnnotation(field);
+    public static ModuleQuery of(@NonNull Field field) {
+        return of(field.getName(), field.getType());
     }
 
-    public static ModuleQuery create(@NonNull Parameter parameter) {
-        return create(parameter.getType()).withInjectAnnotation(parameter);
+    public static ModuleQuery of(@NonNull Parameter parameter) {
+        return of(parameter.getType());
     }
+
+    public static ModuleQuery inject(Parameter parameter, Consumer<Object> injector) {
+        return of(parameter)
+                .withInjectAnnotationOf(parameter)
+                .withInjector(injector);
+    }
+
 }

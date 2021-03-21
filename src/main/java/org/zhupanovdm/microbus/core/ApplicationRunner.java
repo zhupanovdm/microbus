@@ -30,10 +30,10 @@ public class ApplicationRunner {
             MicroModule microModule = CommonUtils.anyOf(microModules);
             if (microModule == null)
                 continue;
-            moduleManager.registerModule(clazz.getSimpleName(), clazz, microModule.spawn());
+            moduleManager.register(clazz.getSimpleName(), clazz, microModule.provider());
         }
 
-        System.out.println(moduleRegistry.getRegisteredModules());
+        System.out.println(moduleRegistry.getModules());
 
         Object resolve = moduleManager.resolve(ModuleQuery.of(Class100.class));
         System.out.println("resolve: " + resolve);

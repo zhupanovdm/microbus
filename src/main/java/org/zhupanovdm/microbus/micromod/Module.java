@@ -3,9 +3,10 @@ package org.zhupanovdm.microbus.micromod;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.zhupanovdm.microbus.micromod.spawner.Initializer;
-import org.zhupanovdm.microbus.micromod.spawner.SpawnStrategy;
-import org.zhupanovdm.microbus.micromod.spawner.Spawner;
+import org.zhupanovdm.microbus.micromod.spawner.InstanceProvider;
+
+import java.util.Collection;
+import java.util.function.Consumer;
 
 @Data
 @EqualsAndHashCode(of = "id")
@@ -13,15 +14,16 @@ import org.zhupanovdm.microbus.micromod.spawner.Spawner;
 public class Module {
     private final String id;
     private final Class<?> type;
+    private final InstanceProvider instanceProvider;
 
-    private Spawner spawner;
-    private final Class<? extends SpawnStrategy> spawnStrategy;
-    private Initializer initializer;
-
-    public Module(String id, Class<?> type, Class<? extends SpawnStrategy> spawnStrategy) {
+    public Module(String id, Class<?> type, InstanceProvider instanceProvider) {
         this.id = id;
         this.type = type;
-        this.spawnStrategy = spawnStrategy;
+        this.instanceProvider = instanceProvider;
+    }
+
+    public Object getInstance(Consumer<Collection<ModuleQuery>> injector) {
+        return instanceProvider.apply(injector);
     }
 
 }

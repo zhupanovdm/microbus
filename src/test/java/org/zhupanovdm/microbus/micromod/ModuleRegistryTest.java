@@ -3,7 +3,9 @@ package org.zhupanovdm.microbus.micromod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.zhupanovdm.microbus.micromod.spawner.SpawnStrategy;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.zhupanovdm.microbus.micromod.spawner.InstanceProvider;
 import org.zhupanovdm.microbus.samples.sample01.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ModuleRegistryTest {
+    @Mock
+    InstanceProvider provider;
+
     ModuleRegistry registry;
 
     Module modAncestor;
@@ -21,18 +26,20 @@ class ModuleRegistryTest {
 
     @BeforeEach
     void setup() {
+        MockitoAnnotations.openMocks(this);
+
         registry = new ModuleRegistry();
-        registry.register(modAncestor = new Module("ancestor", Ancestor.class, SpawnStrategy.Singleton.class));
-        registry.register(modChild = new Module("child", Child.class, SpawnStrategy.Singleton.class));
-        registry.register(modGrandChild = new Module("grandChild", GrandChild.class, SpawnStrategy.Singleton.class));
-        registry.register(modIFace = new Module("iFace", IFace.class, SpawnStrategy.Singleton.class));
+        registry.register(modAncestor = new Module("ancestor", Ancestor.class, provider));
+        registry.register(modChild = new Module("child", Child.class, provider));
+        registry.register(modGrandChild = new Module("grandChild", GrandChild.class, provider));
+        registry.register(modIFace = new Module("iFace", IFace.class, provider));
     }
 
     @Test
     @DisplayName("Register module")
     void register() {
         Module another;
-        registry.register(another = new Module("another", NotRegistered.class, SpawnStrategy.Singleton.class));
+        registry.register(another = new Module("another", NotRegistered.class, provider));
         assertThat(registry.request(ModuleQuery.of("another")), sameInstance(another));
     }
 
@@ -40,7 +47,7 @@ class ModuleRegistryTest {
     @DisplayName("Register same module throws exception")
     void registerSameModuleFails() {
         Module another;
-        registry.register(another = new Module("another", NotRegistered.class, SpawnStrategy.Singleton.class));
+        registry.register(another = new Module("another", NotRegistered.class, provider));
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> registry.register(another));
         assertThat(exception.getMessage(), containsString("Module is already registered"));
     }
@@ -48,8 +55,8 @@ class ModuleRegistryTest {
     @Test
     @DisplayName("Register module with same id throws exception")
     void registerModuleWithSameIdFails() {
-        registry.register(new Module("another", NotRegistered.class, SpawnStrategy.Singleton.class));
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> registry.register(new Module("another", NotRegistered.class, SpawnStrategy.Singleton.class)));
+        registry.register(new Module("another", NotRegistered.class, provider));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> registry.register(new Module("another", NotRegistered.class, provider)));
         assertThat(exception.getMessage(), containsString("Module is already registered"));
     }
 
@@ -57,7 +64,7 @@ class ModuleRegistryTest {
     @DisplayName("Unregister module")
     void unregister() {
         Module another;
-        registry.register(another = new Module("another", NotRegistered.class, SpawnStrategy.Singleton.class));
+        registry.register(another = new Module("another", NotRegistered.class, provider));
         registry.unregister(another);
         assertNull(registry.request(ModuleQuery.of("another")));
     }

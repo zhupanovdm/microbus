@@ -11,13 +11,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MethodSpawner implements Spawner {
+public class MethodSpawner extends Spawner {
     private final Method method;
     private final String declaringModuleId;
     private Object declaringModuleObject;
     private final Object[] args;
 
-    public MethodSpawner(Method method, String declaringModuleId) {
+    public MethodSpawner(Method method, String declaringModuleId, Initializer initializer) {
+        super(initializer);
+
         this.method = method;
         this.declaringModuleId = declaringModuleId;
         this.args = new Object[method.getParameters().length];
@@ -33,16 +35,12 @@ public class MethodSpawner implements Spawner {
         return Collections.unmodifiableList(dependencies);
     }
 
-    @Override
-    public Object get() {
-        return instantiate();
-    }
-
     private Consumer<Object> createArgInjector(int i) {
         return o -> args[i] = o;
     }
 
-    private Object instantiate() {
+    @Override
+    protected Object instantiate() {
         try {
             return method.invoke(declaringModuleObject, args);
         } catch (IllegalAccessException e) {

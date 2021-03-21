@@ -11,11 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ClassSpawner implements Spawner {
+public class ClassSpawner extends Spawner {
     private final Constructor<?> constructor;
     private final Object[] args;
 
-    public ClassSpawner(Class<?> clazz) {
+    public ClassSpawner(Class<?> clazz, Initializer initializer) {
+        super(initializer);
+
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         if (constructors.length != 1)
             throw new IllegalArgumentException("Only one constructor is supported for class spawning: " + clazz);
@@ -32,16 +34,12 @@ public class ClassSpawner implements Spawner {
         return Collections.unmodifiableList(dependencies);
     }
 
-    @Override
-    public Object get() {
-        return instantiate();
-    }
-
     private Consumer<Object> createArgInjector(int i) {
         return o -> args[i] = o;
     }
 
-    private Object instantiate() {
+    @Override
+    protected Object instantiate() {
         try {
             return constructor.newInstance(args);
         } catch (IllegalAccessException e) {

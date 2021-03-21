@@ -1,9 +1,6 @@
 package org.zhupanovdm.microbus.micromod;
 
-import org.zhupanovdm.microbus.micromod.spawner.ClassSpawner;
-import org.zhupanovdm.microbus.micromod.spawner.Initializer;
-import org.zhupanovdm.microbus.micromod.spawner.SpawnStrategy;
-import org.zhupanovdm.microbus.micromod.spawner.MethodSpawner;
+import org.zhupanovdm.microbus.micromod.spawner.*;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -13,38 +10,37 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class ModuleManager {
-    private final Map<Class<? extends SpawnStrategy>, SpawnStrategy> spawnStrategies;
+    private final Map<Class<? extends InstanceProvider>, Function<Spawner, InstanceProvider>> spawnStrategyFactory;
     private final ModuleRegistry registry;
 
     public ModuleManager(ModuleRegistry registry) {
         this.registry = registry;
-        this.spawnStrategies = new HashMap<>();
-        addSpawnStrategy(new SpawnStrategy.Singleton());
-        addSpawnStrategy(new SpawnStrategy.Factory());
+        this.spawnStrategyFactory = new HashMap<>();
+        this.spawnStrategyFactory.put(InstanceProvider.Singleton.class, InstanceProvider.Singleton::new);
+        this.spawnStrategyFactory.put(InstanceProvider.Factory.class, InstanceProvider.Factory::new);
     }
 
-    public void registerModule(String id, Class<?> type, Class<? extends SpawnStrategy> provider) {
+    public void register(String id, Class<?> type, Class<? extends InstanceProvider> providerType) {
+        InstanceProvider provider = spawnStrategyFactory.get(providerType).apply(new ClassSpawner(type, new Initializer(type)));
         Module module = new Module(id, type, provider);
-        module.setSpawner(new ClassSpawner(type));
-        module.setInitializer(new Initializer(type));
         registry.register(module);
     }
 
-    public void registerModule(String id, Method method, String declaringModuleId, Class<? extends SpawnStrategy> provider) {
-        Module module = new Module(id, method.getReturnType(), provider);
-        module.setSpawner(new MethodSpawner(method, declaringModuleId));
-        module.setInitializer(new Initializer(method.getReturnType()));
+    public void register(String id, Method method, String declaringModuleId, Class<? extends InstanceProvider> providerType) {
+        Class<?> type = method.getReturnType();
+        InstanceProvider provider = spawnStrategyFactory.get(providerType).apply(new MethodSpawner(method, declaringModuleId, new Initializer(type)));
+        Module module = new Module(id, type, provider);
         registry.register(module);
     }
 
-    public void unregisterModule(String id) {
+    public void unregister(String id) {
         Module module = registry.request(ModuleQuery.of(id));
         if (module != null) {
             registry.unregister(module);
         }
     }
 
-    public synchronized Object resolve(ModuleQuery query) {
+    public Object resolve(ModuleQuery query) {
         Module module = registry.request(query);
         if (module == null)
             throw new IllegalStateException("Cant satisfy request: " + query);
@@ -52,33 +48,13 @@ public class ModuleManager {
     }
 
     private Object resolve(Module module, Set<Module> chain) {
-        if (module == null)
-            throw new IllegalArgumentException("Cant resolve chain: " + chain);
-
-        return instantiate(module, m -> {
-            if (!chain.add(m))
-                throw new IllegalStateException("Recursive module dependency");
-
-            for (ModuleQuery query : m.getSpawner().getDependencies()) {
-                Object obj = resolve(registry.request(query), chain);
-                query.getInjector().accept(obj);
-
-                Initializer initializer = m.getInitializer();
-                for (ModuleQuery query1 : initializer.getDependencies())
-                    query.getInjector().accept(resolve(registry.request(query1), chain));
-                initializer.init(obj);
-            }
-            chain.remove(m);
-            return m.getSpawner().get();
-        });
-    }
-
-    private void addSpawnStrategy(SpawnStrategy strategy) {
-        spawnStrategies.put(strategy.getClass(), strategy);
-    }
-
-    private Object instantiate(Module module, Function<Module, Object> spawner) {
-        return spawnStrategies.get(module.getSpawnStrategy()).apply(module, spawner);
+        if (!chain.add(module))
+            throw new IllegalStateException("Recursive module dependency: " + module + " > " + chain);
+        Object instance = module.getInstance(dependencies ->
+                dependencies.forEach(dependency -> dependency.getInjector()
+                .accept(resolve(registry.request(dependency), chain))));
+        chain.remove(module);
+        return instance;
     }
 
 }

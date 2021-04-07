@@ -2,15 +2,13 @@ package org.zhupanovdm.microbus.utils;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Table;
-import org.zhupanovdm.microbus.micromod.reflector.AnnotatedElementsHolder;
+import org.zhupanovdm.microbus.core.reflector.AnnotatedElementsHolder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,13 +29,17 @@ public class ReflectorUtils {
         return map;
     }
 
-    public static <R, C> Set<C> withHighestPriority(R key, Table<R, C, Integer> table) {
-        Map<C, Integer> row = table.row(key);
-        int priority = row.values().stream().min(Integer::compare).orElse(-1);
-        return row.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(priority))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toUnmodifiableSet());
+    public static <T extends Annotation> T getAnnotation(Class<?> clazz, Class<T> type) {
+        T annotation = clazz.getAnnotation(type);
+        if (annotation == null) {
+            Annotation[] annotations = clazz.getDeclaredAnnotations();
+            for (Annotation parent : annotations) {
+                annotation = getAnnotation(parent.annotationType(), type);
+                if (annotation != null)
+                    break;
+            }
+        }
+        return annotation;
     }
 
     public static void printAnnotationsTree(AnnotatedElementsHolder<Class<? extends Annotation>> holder) {

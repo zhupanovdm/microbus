@@ -3,12 +3,14 @@ package org.zhupanovdm.microbus.utils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+@NotThreadSafe
 public class ClassMappedValueScanner<T> {
     private final Function<T, Class<?>> valueToClass;
     private final Multimap<Class<?>, T> values = HashMultimap.create();
@@ -28,6 +30,11 @@ public class ClassMappedValueScanner<T> {
         rebuildHierarchy();
     }
 
+    public void remove(Iterable<T> iterable) {
+        iterable.forEach(value -> values.remove(valueToClass.apply(value), value));
+        rebuildHierarchy();
+    }
+
     public Set<Class<?>> types() {
         return Collections.unmodifiableSet(values.keySet());
     }
@@ -40,14 +47,22 @@ public class ClassMappedValueScanner<T> {
         return collection;
     }
 
+    public Collection<T> get(Class<?> clazz) {
+        return values.get(clazz);
+    }
+
     public void scan(Class<?> clazz, BiFunction<Collection<T>, Integer, Boolean> visitor) {
         scan(clazz, visitor, 0);
     }
 
     private void scan(Class<?> clazz, BiFunction<Collection<T>, Integer, Boolean> visitor, int generation) {
+        if (clazz == null)
+            return;
+
         Collection<T> result = values.get(clazz);
         if (!result.isEmpty() && !visitor.apply(Collections.unmodifiableCollection(result), generation))
             return;
+
         hierarchy.get(clazz).forEach(subclass -> scan(subclass, visitor, generation + 1));
     }
 

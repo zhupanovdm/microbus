@@ -2,7 +2,7 @@ package org.zhupanovdm.microbus.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.App;
-import org.zhupanovdm.microbus.core.reflector.AnnotationsRegistry;
+import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
 import org.zhupanovdm.microbus.core.reflector.PackageScanner;
 import org.zhupanovdm.microbus.core.di.DependencyQualifier;
 import org.zhupanovdm.microbus.core.di.ObjectInitializer;
@@ -16,28 +16,27 @@ import java.lang.reflect.Parameter;
 public class AppDefaultContext implements AppContext {
     private final Class<?> appClass;
     private final String[] args;
-    private AnnotationsRegistry annotationsRegistry;
-    private DependencyQualifier<Field> fieldQualifier;
-    private DependencyQualifier<Parameter> argumentQualifier;
-    private ObjectInitializer objectInitializer;
-    private UnitRegistry unitRegistry;
+    private final AnnotationRegistry annotationRegistry;
+    private final DependencyQualifier<Field> fieldQualifier;
+    private final DependencyQualifier<Parameter> argumentQualifier;
+    private final ObjectInitializer objectInitializer;
+    private final UnitRegistry unitRegistry;
 
     private AppDefaultContext(Class<?> appClass, String[] args) {
         this.appClass = appClass;
         this.args = args;
-    }
 
-    private void init() {
-        PackageScanner packageScanner = new PackageScanner();
-
-        annotationsRegistry = new AnnotationsRegistry();
-        annotationsRegistry.scan(packageScanner.scan(App.class.getPackageName()));
-        annotationsRegistry.scan(packageScanner.scan(appClass.getPackageName()));
-
+        annotationRegistry = new AnnotationRegistry();
         argumentQualifier = new DependencyQualifier<>(UnitQuery::of);
         fieldQualifier = new DependencyQualifier<>(UnitQuery::of);
         unitRegistry = new UnitRegistry();
         objectInitializer = new ObjectInitializer(unitRegistry, fieldQualifier);
+    }
+
+    private void init() {
+        PackageScanner packageScanner = new PackageScanner();
+        annotationRegistry.scan(packageScanner.scan(App.class.getPackageName()));
+        annotationRegistry.scan(packageScanner.scan(appClass.getPackageName()));
     }
 
     public static AppContext create(Class<?> appClass, String[] args) {
@@ -57,8 +56,8 @@ public class AppDefaultContext implements AppContext {
     }
 
     @Override
-    public AnnotationsRegistry getAnnotationsRegistry() {
-        return annotationsRegistry;
+    public AnnotationRegistry getAnnotationRegistry() {
+        return annotationRegistry;
     }
 
     @Override

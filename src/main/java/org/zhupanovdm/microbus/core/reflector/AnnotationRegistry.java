@@ -14,23 +14,23 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Slf4j
-public class AnnotationsRegistry {
+public class AnnotationRegistry {
     private final Multimap<Class<? extends Annotation>, Class<? extends Annotation>> annotations = HashMultimap.create();
 
     @Getter
-    private final AnnotatedElementsHolder<Class<?>> classes = new AnnotatedElementsHolder<>(annotations);
+    private final AnnotatedElementHolder<Class<?>> classes = new AnnotatedElementHolder<>(annotations);
 
     @Getter
-    private final AnnotatedElementsHolder<Field> fields = new AnnotatedElementsHolder<>(annotations);
+    private final AnnotatedElementHolder<Field> fields = new AnnotatedElementHolder<>(annotations);
 
     @Getter
-    private final AnnotatedElementsHolder<Constructor<?>> constructors = new AnnotatedElementsHolder<>(annotations);
+    private final AnnotatedElementHolder<Constructor<?>> constructors = new AnnotatedElementHolder<>(annotations);
 
     @Getter
-    private final AnnotatedElementsHolder<Method> methods = new AnnotatedElementsHolder<>(annotations);
+    private final AnnotatedElementHolder<Method> methods = new AnnotatedElementHolder<>(annotations);
 
     @Getter
-    private final AnnotatedElementsHolder<Parameter> parameters = new AnnotatedElementsHolder<>(annotations);
+    private final AnnotatedElementHolder<Parameter> parameters = new AnnotatedElementHolder<>(annotations);
 
     public void scan(Class<?> ...classes) {
         for (Class<?> aClass : classes) {
@@ -70,11 +70,11 @@ public class AnnotationsRegistry {
         }
     }
 
-    private <T extends AnnotatedElement> void registerElements(T[] elements, AnnotatedElementsHolder<T> holder) {
+    private <T extends AnnotatedElement> void registerElements(T[] elements, AnnotatedElementHolder<T> holder) {
         registerElements(elements, holder, null);
     }
 
-    private <T extends AnnotatedElement> void registerElements(T[] elements, AnnotatedElementsHolder<T> holder, Consumer<T> consumer) {
+    private <T extends AnnotatedElement> void registerElements(T[] elements, AnnotatedElementHolder<T> holder, Consumer<T> consumer) {
         for (T element : elements) {
             for (Annotation annotation : element.getAnnotations()) {
                 if (acceptAnnotationType(annotation.annotationType())) {

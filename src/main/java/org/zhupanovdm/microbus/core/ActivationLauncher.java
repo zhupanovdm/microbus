@@ -4,8 +4,8 @@ import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.core.activator.ActivatorTemplate;
 import org.zhupanovdm.microbus.core.annotation.Activator;
-import org.zhupanovdm.microbus.core.reflector.AnnotatedElementsHolder;
-import org.zhupanovdm.microbus.core.reflector.AnnotationsRegistry;
+import org.zhupanovdm.microbus.core.reflector.AnnotatedElementHolder;
+import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
 import org.zhupanovdm.microbus.util.CommonUtils;
 
 import java.lang.annotation.Annotation;
@@ -27,12 +27,12 @@ public class ActivationLauncher {
     public void engage() {
         log.debug("Engaging activators");
 
-        CommonUtils.visitRows(context.getAnnotationsRegistry().getClasses().scan(Activator.class), (type, table) -> createActivator(type, resolveKey(type, table)));
+        CommonUtils.visitRows(context.getAnnotationRegistry().getClasses().scan(Activator.class), (type, table) -> createActivator(type, resolveKey(type, table)));
 
         while (activators.peek() != null) {
             ActivatorTemplate<?> activator = activators.poll();
 
-            AnnotationsRegistry registry = context.getAnnotationsRegistry();
+            AnnotationRegistry registry = context.getAnnotationRegistry();
             discover(activator, Class.class, registry.getClasses());
             discover(activator, Constructor.class, registry.getConstructors());
             discover(activator, Method.class, registry.getMethods());
@@ -58,7 +58,7 @@ public class ActivationLauncher {
     }
 
     private static <R, C> C resolveKey(R key, Table<R, C, Integer> table) {
-        return AnnotatedElementsHolder.withHighestPriorityResolved(key, table, collision -> {
+        return AnnotatedElementHolder.withHighestPriorityResolved(key, table, collision -> {
             log.error("Ambiguous definitions for {}: {}", key, collision);
             throw new IllegalStateException("Ambiguous definitions for " + key + ": " + collision);
         }).orElseThrow(() -> {
@@ -67,7 +67,7 @@ public class ActivationLauncher {
         });
     }
 
-    private <T extends AnnotatedElement> void discover(ActivatorTemplate<?> activator, Class<?> elementType, AnnotatedElementsHolder<T> annotated) {
+    private <T extends AnnotatedElement> void discover(ActivatorTemplate<?> activator, Class<?> elementType, AnnotatedElementHolder<T> annotated) {
         Class<? extends Annotation> marker = metadata.get(activator).marker();
 
         Method method;

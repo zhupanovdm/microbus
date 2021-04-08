@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
 
 @ThreadSafe
-public class AnnotatedElementsHolder<T extends AnnotatedElement> {
+public class AnnotatedElementHolder<T extends AnnotatedElement> {
     private final Multimap<Class<? extends Annotation>, Class<? extends Annotation>> annotations;
     private final Multimap<Class<? extends Annotation>, T> annotated = HashMultimap.create();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public AnnotatedElementsHolder(Multimap<Class<? extends Annotation>, Class<? extends Annotation>> annotations) {
+    public AnnotatedElementHolder(Multimap<Class<? extends Annotation>, Class<? extends Annotation>> annotations) {
         this.annotations = annotations;
     }
 

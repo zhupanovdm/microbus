@@ -41,7 +41,7 @@ public class ReflectorUtils {
         return annotation;
     }
 
-    public static void printAnnotationsTree(AnnotatedElementsHolder<Class<? extends Annotation>> holder) {
+    public static void printAnnotationsTree(AnnotatedElementHolder<Class<? extends Annotation>> holder) {
         Set<Class<? extends Annotation>> annotations = holder.annotations();
         var children = annotations.stream()
                 .flatMap(aClass -> holder.get(aClass).stream())
@@ -53,7 +53,7 @@ public class ReflectorUtils {
                 .forEach(aClass -> printAnnotationsTree(holder, aClass, "", 0));
     }
 
-    private static void printAnnotationsTree(AnnotatedElementsHolder<Class<? extends Annotation>> holder, Class<? extends Annotation> current, String offset, int i) {
+    private static void printAnnotationsTree(AnnotatedElementHolder<Class<? extends Annotation>> holder, Class<? extends Annotation> current, String offset, int i) {
         System.out.println(offset + " " + i + ": " + current);
         for (var a : holder.get(current)) {
             printAnnotationsTree(holder, a, offset + ' ', i + 1);

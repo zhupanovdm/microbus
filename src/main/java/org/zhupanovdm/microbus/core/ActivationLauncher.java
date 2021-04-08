@@ -2,7 +2,7 @@ package org.zhupanovdm.microbus.core;
 
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.activators.ActivationHandler;
+import org.zhupanovdm.microbus.core.activator.ActivatorTemplate;
 import org.zhupanovdm.microbus.core.annotations.Activator;
 import org.zhupanovdm.microbus.core.reflector.AnnotatedElementsHolder;
 import org.zhupanovdm.microbus.core.reflector.AnnotationsRegistry;
@@ -17,8 +17,8 @@ public class ActivationLauncher {
     public static final String ON_DISCOVER_METHOD = "onDiscover";
 
     private final AppContext context;
-    private final Map<ActivationHandler<?>, Activator> metadata = new HashMap<>();
-    private final Queue<ActivationHandler<?>> activators = new PriorityQueue<>(Comparator.comparingInt(a -> metadata.get(a).priority()));
+    private final Map<ActivatorTemplate<?>, Activator> metadata = new HashMap<>();
+    private final Queue<ActivatorTemplate<?>> activators = new PriorityQueue<>(Comparator.comparingInt(a -> metadata.get(a).priority()));
 
     public ActivationLauncher(AppContext context) {
         this.context = context;
@@ -27,10 +27,10 @@ public class ActivationLauncher {
     public void engage() {
         log.debug("Engaging activators");
 
-        context.getAnnotationsRegistry().getClasses().scan(Activator.class, (type, table) -> createActivator(type, resolveKey(type, table)));
+        CommonUtils.visitRows(context.getAnnotationsRegistry().getClasses().scan(Activator.class), (type, table) -> createActivator(type, resolveKey(type, table)));
 
         while (activators.peek() != null) {
-            ActivationHandler<?> activator = activators.poll();
+            ActivatorTemplate<?> activator = activators.poll();
 
             AnnotationsRegistry registry = context.getAnnotationsRegistry();
             discover(activator, Class.class, registry.getClasses());
@@ -41,14 +41,14 @@ public class ActivationLauncher {
 
             activator.activate();
 
-            log.info("Activation complete: {}", activator.getClass());
+            log.info("Activation complete: {}", activator.getClass().getCanonicalName());
         }
     }
 
     private void createActivator(Class<?> type, Activator annotation) {
-        ActivationHandler<?> activator;
+        ActivatorTemplate<?> activator;
         try {
-            activator = (ActivationHandler<?>) type.getConstructor().newInstance();
+            activator = (ActivatorTemplate<?>) type.getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             log.error("Failed to instantiate activator {}", type, e);
             throw new RuntimeException("Failed to instantiate activator " + type, e);
@@ -58,7 +58,7 @@ public class ActivationLauncher {
     }
 
     private static <R, C> C resolveKey(R key, Table<R, C, Integer> table) {
-        return CommonUtils.withHighestPriorityResolved(key, table, collision -> {
+        return AnnotatedElementsHolder.withHighestPriorityResolved(key, table, collision -> {
             log.error("Ambiguous definitions for {}: {}", key, collision);
             throw new IllegalStateException("Ambiguous definitions for " + key + ": " + collision);
         }).orElseThrow(() -> {
@@ -67,7 +67,7 @@ public class ActivationLauncher {
         });
     }
 
-    private <T extends AnnotatedElement> void discover(ActivationHandler<?> activator, Class<?> elementType, AnnotatedElementsHolder<T> annotated) {
+    private <T extends AnnotatedElement> void discover(ActivatorTemplate<?> activator, Class<?> elementType, AnnotatedElementsHolder<T> annotated) {
         Class<? extends Annotation> marker = metadata.get(activator).marker();
 
         Method method;
@@ -76,9 +76,8 @@ public class ActivationLauncher {
         } catch (NoSuchMethodException e) {
             return;
         }
-        log.trace("Found activator method {}", method);
 
-        annotated.scan(marker, (element, table) -> {
+        CommonUtils.visitRows(annotated.scan(marker), (element, table) -> {
             Annotation annotation = resolveKey(element, table);
             try {
                 method.invoke(activator, element, annotation);
@@ -86,7 +85,6 @@ public class ActivationLauncher {
                 log.error("Failed invocation of activator method {}", method, e);
                 throw new RuntimeException("Failed invocation of activator method: " + method, e);
             }
-            log.trace("Invoked activator method {} with: {}, {}", method, element, annotation);
         });
     }
 

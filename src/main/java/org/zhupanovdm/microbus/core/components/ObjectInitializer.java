@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.core.unit.UnitQuery;
 import org.zhupanovdm.microbus.core.unit.UnitRegistry;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.Field;
 import java.util.NoSuchElementException;
 
 @Slf4j
+@NotThreadSafe
 public class ObjectInitializer {
     private final UnitRegistry registry;
     private final DependencyQualifier<Field> qualifier;
@@ -17,19 +19,16 @@ public class ObjectInitializer {
         this.qualifier = qualifier;
     }
 
-    public Object init(Object instance) {
-        log.trace("Initializing {}", instance);
-
+    public void init(Object instance) {
         qualifier.getAll().stream()
             .filter(field -> field.getDeclaringClass().equals(instance.getClass()))
             .forEach(field -> {
                 UnitQuery query = qualifier.toQuery(field);
                 inject(instance, field, registry.request(query).orElseThrow(() -> {
-                    log.error("Cannot satisfy injection query {} for instance {}", query, instance);
-                    return new NoSuchElementException("Appropriate unit not found");
+                    log.error("Cannot satisfy injection to {} with query {} for instance {}", field, query, instance);
+                    return new NoSuchElementException("Appropriate unit not found " + query);
                 }).resolve());
             });
-        return instance;
     }
 
     private void inject(Object instance, Field field, Object value) {
@@ -40,7 +39,6 @@ public class ObjectInitializer {
             inject(instance, field, value);
             field.setAccessible(false);
         }
-        log.trace("Injection to {} of {}", field, value);
     }
 
 }

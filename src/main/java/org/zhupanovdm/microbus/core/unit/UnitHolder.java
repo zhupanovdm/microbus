@@ -30,12 +30,12 @@ public abstract class UnitHolder<T extends Executable> {
     private final CreationStrategy strategy;
     private final AppContext context;
 
-    public UnitHolder(String id, Class<?> type, T constructor, String name, Class<? extends CreationStrategy> providerType) {
+    public UnitHolder(String id, Class<?> type, T constructor, String name, Class<? extends CreationStrategy> creationStrategy) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.constructor = constructor;
-        this.strategy = CreationStrategy.create(providerType);
+        this.strategy = CreationStrategy.create(creationStrategy);
         this.context = App.getContext();
     }
 
@@ -55,13 +55,12 @@ public abstract class UnitHolder<T extends Executable> {
         Object instance = strategy.getInstance(() -> create(injector), initializer::init);
         chain.remove(this);
 
-        log.trace("Resolved {} to {}", this, instance);
         return instance;
     }
 
     private UnitHolder<?> requestDependency(UnitQuery query) {
         return context.getUnitRegistry().request(query).orElseThrow(() -> {
-            log.error("Failed to query unit {}", query);
+            log.error("Failed to satisfy unit dependency with query {}", query);
             return new NoSuchElementException("No unit found on specified request");
         });
     }
@@ -76,12 +75,12 @@ public abstract class UnitHolder<T extends Executable> {
     }
 
     public String toString() {
-        return "UNIT:" + id;
+        return "UNIT@" + id;
     }
 
     public static class Constructable extends UnitHolder<Constructor<?>> {
         public Constructable(String id, Class<?> clazz, Class<? extends CreationStrategy> providerType) {
-            super(id, clazz, constructor(clazz), UnitUtils.name(clazz), providerType);
+            super(id, clazz, constructor(clazz), UnitUtils.nameOf(clazz), providerType);
         }
 
         @Override
@@ -112,13 +111,13 @@ public abstract class UnitHolder<T extends Executable> {
 
     public static class Invokable extends UnitHolder<Method> {
         public Invokable(String id, Method method, Class<? extends CreationStrategy> providerType) {
-            super(id, method.getReturnType(), method, UnitUtils.name(method), providerType);
+            super(id, method.getReturnType(), method, UnitUtils.nameOf(method), providerType);
         }
 
         @Override
         public Object create(Function<UnitQuery, ?> injector) {
             Class<?> declaring = constructor.getDeclaringClass();
-            Object target = injector.apply(new UnitQuery(null, declaring, UnitUtils.name(declaring), EXACT_TYPE));
+            Object target = injector.apply(new UnitQuery(null, declaring, UnitUtils.nameOf(declaring), EXACT_TYPE));
             try {
                 return constructor.invoke(target, getArgs(injector));
             } catch (IllegalAccessException e) {

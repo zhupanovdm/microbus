@@ -4,19 +4,20 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
-import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.utils.CommonUtils;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-@Slf4j
+import static org.zhupanovdm.microbus.utils.CommonUtils.doWithLock;
+
+@ThreadSafe
 public class AnnotatedElementsHolder<T extends AnnotatedElement> {
     private final Multimap<Class<? extends Annotation>, Class<? extends Annotation>> annotations;
     private final Multimap<Class<? extends Annotation>, T> annotated = HashMultimap.create();
@@ -27,28 +28,19 @@ public class AnnotatedElementsHolder<T extends AnnotatedElement> {
     }
 
     public void put(Class<? extends Annotation> type, T element) {
-        CommonUtils.doWithLock(lock.writeLock(), () -> annotated.put(type, element));
-        log.trace("Found annotated {} with @{}", element, type.getCanonicalName());
+        doWithLock(lock.writeLock(), () -> annotated.put(type, element));
     }
 
     public Collection<T> get(Class<? extends Annotation> type) {
-        return CommonUtils.doWithLock(lock.readLock(), () -> Collections.unmodifiableCollection(annotated.get(type)));
+        return doWithLock(lock.readLock(), () -> Collections.unmodifiableCollection(annotated.get(type)));
     }
 
     public Set<Class<? extends Annotation>> annotations() {
-        return CommonUtils.doWithLock(lock.readLock(), () -> Collections.unmodifiableSet(annotated.keySet()));
+        return doWithLock(lock.readLock(), () -> Collections.unmodifiableSet(annotated.keySet()));
     }
 
     public <A extends Annotation> Table<T, A, Integer> scan(Class<A> type) {
-        return scan(type, type, null, 0, HashBasedTable.create());
-    }
-
-    public <A extends Annotation> void scan(Class<A> type, BiConsumer<T, Table<T, A, Integer>> visitor) {
-        CommonUtils.doWithLock(lock.readLock(), () -> {
-            Table<T, A, Integer> table = scan(type);
-            table.rowKeySet().forEach(key -> visitor.accept(key, table));
-            return null;
-        });
+        return doWithLock(lock.readLock(), () -> scan(type, type, null, 0, HashBasedTable.create()));
     }
 
     private <A extends Annotation> Table<T, A, Integer> scan(Class<? extends Annotation> currentType, Class<A> requestedType, A annotation, int priority, Table<T, A, Integer> result) {
@@ -62,6 +54,20 @@ public class AnnotatedElementsHolder<T extends AnnotatedElement> {
             scan(child, requestedType, annotation == null ? child.getAnnotation(requestedType) : annotation, priority + 1, result);
         }
         return result;
+    }
+
+    public static <R, C> Optional<C> withHighestPriorityResolved(R key, Table<R, C, Integer> table, Function<Set<C>, Optional<C>> collisionResolver) {
+        Set<C> result = withHighestPriority(key, table);
+        return result.size() > 1 ? collisionResolver.apply(result) : CommonUtils.anyOf(result);
+    }
+
+    public static <R, C> Set<C> withHighestPriority(R key, Table<R, C, Integer> table) {
+        Map<C, Integer> row = table.row(key);
+        int priority = row.values().stream().min(Integer::compare).orElse(-1);
+        return row.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(priority))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
 }

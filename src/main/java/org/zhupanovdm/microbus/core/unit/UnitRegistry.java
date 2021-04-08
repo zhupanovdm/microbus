@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.zhupanovdm.microbus.core.unit.UnitQuery.Option.EXACT_TYPE;
 import static org.zhupanovdm.microbus.core.unit.UnitQuery.Option.PERMISSIVE_ID;
+import static org.zhupanovdm.microbus.utils.CommonUtils.doWithLock;
 
 @Slf4j
 @ThreadSafe
@@ -21,19 +22,18 @@ public class UnitRegistry {
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public void register(@NonNull UnitHolder<?> unit) {
-        CommonUtils.doWithLock(lock.writeLock(), () -> {
+        doWithLock(lock.writeLock(), () -> {
             if (ids.containsKey(unit.getId())) {
-                log.error("Mod with the same id already registered: {}", ids.get(unit.getId()));
-                throw new IllegalArgumentException("Mod with the same id is already registered: " + unit);
+                log.error("Unit with the same id already registered {}", ids.get(unit.getId()));
+                throw new IllegalArgumentException("Unit with the same id is already registered " + unit);
             }
             types.put(unit);
             return ids.put(unit.getId(), unit);
         });
-        log.debug("Registered {}", unit);
     }
 
     public Optional<UnitHolder<?>> request(@NonNull UnitQuery query) {
-        return CommonUtils.doWithLock(lock.readLock(), () -> searchMatchingUnit(query));
+        return doWithLock(lock.readLock(), () -> searchMatchingUnit(query));
     }
 
     private Optional<UnitHolder<?>> searchMatchingUnit(UnitQuery query) {

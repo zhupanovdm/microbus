@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -32,18 +33,8 @@ public class CommonUtils {
         }
     }
 
-    public static <R, C> Optional<C> withHighestPriorityResolved(R key, Table<R, C, Integer> table, Function<Set<C>, Optional<C>> collisionResolver) {
-        Set<C> result = withHighestPriority(key, table);
-        return result.size() > 1 ? collisionResolver.apply(result) : anyOf(result);
-    }
-
-    public static <R, C> Set<C> withHighestPriority(R key, Table<R, C, Integer> table) {
-        Map<C, Integer> row = table.row(key);
-        int priority = row.values().stream().min(Integer::compare).orElse(-1);
-        return row.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(priority))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toUnmodifiableSet());
+    public static <R, C, V> void visitRows(Table<R, C, V> table,  BiConsumer<R, Table<R, C, V>> consumer) {
+        table.rowKeySet().forEach(row -> consumer.accept(row, table));
     }
 
     public static <T> Optional<T> anyOf(Iterable<T> iterable) {

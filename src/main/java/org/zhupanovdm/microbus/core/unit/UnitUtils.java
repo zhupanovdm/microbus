@@ -8,22 +8,22 @@ import java.util.Locale;
 import java.util.Optional;
 
 public class UnitUtils {
-    public static String definedId(Class<?> aClass) {
+    public static String idOf(Class<?> aClass) {
         return getIdDefinition(aClass).orElseGet(() -> {
             String simpleName = aClass.getSimpleName();
             return simpleName.substring(0, 1).toLowerCase(Locale.ROOT) + simpleName.substring(1);
         });
     }
 
-    public static String definedId(Method method) {
+    public static String idOf(Method method) {
         return getIdDefinition(method).orElseGet(method::getName);
     }
 
-    public static String name(Class<?> aClass) {
+    public static String nameOf(Class<?> aClass) {
         return aClass.getCanonicalName();
     }
 
-    public static String name(Method method) {
+    public static String nameOf(Method method) {
         return method.toGenericString();
     }
 

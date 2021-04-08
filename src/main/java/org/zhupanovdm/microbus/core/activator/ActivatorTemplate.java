@@ -1,4 +1,4 @@
-package org.zhupanovdm.microbus.core.activators;
+package org.zhupanovdm.microbus.core.activator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 @SuppressWarnings("unused")
-public interface ActivationHandler<T extends Annotation> {
+public interface ActivatorTemplate<T extends Annotation> {
     default void activate() { }
     default void onDiscover(Class<?> aClass, T metadata) { }
     default void onDiscover(Constructor<?> constructor, T metadata) { }

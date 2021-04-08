@@ -4,7 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
-import org.zhupanovdm.microbus.utils.CommonUtils;
+import org.zhupanovdm.microbus.util.CommonUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.lang.annotation.Annotation;
@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.zhupanovdm.microbus.utils.CommonUtils.doWithLock;
+import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
 
 @ThreadSafe
 public class AnnotatedElementsHolder<T extends AnnotatedElement> {

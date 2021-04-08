@@ -1,16 +1,16 @@
 package org.zhupanovdm.microbus.core.activator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.annotations.Activator;
-import org.zhupanovdm.microbus.core.annotations.ActiveObject;
-import org.zhupanovdm.microbus.core.unit.UnitHolder;
-import org.zhupanovdm.microbus.core.unit.UnitQuery;
-import org.zhupanovdm.microbus.core.unit.UnitUtils;
+import org.zhupanovdm.microbus.core.annotation.Activator;
+import org.zhupanovdm.microbus.core.annotation.ActiveObject;
+import org.zhupanovdm.microbus.core.di.UnitHolder;
+import org.zhupanovdm.microbus.core.di.UnitQuery;
+import org.zhupanovdm.microbus.core.di.UnitUtils;
 
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 
-import static org.zhupanovdm.microbus.core.unit.UnitQuery.Option.EXACT_TYPE;
+import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.EXACT_TYPE;
 
 @Slf4j
 @Activator(marker = ActiveObject.class, priority = 20)

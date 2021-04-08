@@ -1,4 +1,4 @@
-package org.zhupanovdm.microbus.core.annotations;
+package org.zhupanovdm.microbus.core.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

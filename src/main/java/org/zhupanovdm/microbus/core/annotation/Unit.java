@@ -1,7 +1,7 @@
-package org.zhupanovdm.microbus.core.annotations;
+package org.zhupanovdm.microbus.core.annotation;
 
-import org.zhupanovdm.microbus.core.unit.CreationStrategy;
-import org.zhupanovdm.microbus.core.unit.CreationStrategy.Singleton;
+import org.zhupanovdm.microbus.core.di.CreationStrategy;
+import org.zhupanovdm.microbus.core.di.CreationStrategy.Singleton;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

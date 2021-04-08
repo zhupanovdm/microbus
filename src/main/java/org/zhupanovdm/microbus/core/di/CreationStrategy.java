@@ -1,4 +1,4 @@
-package org.zhupanovdm.microbus.core.unit;
+package org.zhupanovdm.microbus.core.di;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static org.zhupanovdm.microbus.utils.CommonUtils.doWithLock;
+import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
 
 @Slf4j
 public abstract class CreationStrategy {

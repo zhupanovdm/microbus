@@ -1,14 +1,14 @@
 package org.zhupanovdm.microbus.core.activator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.annotations.Activator;
-import org.zhupanovdm.microbus.core.annotations.Unit;
-import org.zhupanovdm.microbus.core.unit.UnitHolder.Constructable;
-import org.zhupanovdm.microbus.core.unit.UnitHolder.Invokable;
+import org.zhupanovdm.microbus.core.annotation.Activator;
+import org.zhupanovdm.microbus.core.annotation.Unit;
+import org.zhupanovdm.microbus.core.di.UnitHolder.Constructable;
+import org.zhupanovdm.microbus.core.di.UnitHolder.Invokable;
 
 import java.lang.reflect.Method;
 
-import static org.zhupanovdm.microbus.core.unit.UnitUtils.idOf;
+import static org.zhupanovdm.microbus.core.di.UnitUtils.idOf;
 
 @Slf4j
 @Activator(marker = Unit.class, priority = 10)

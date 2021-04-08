@@ -1,11 +1,10 @@
-package org.zhupanovdm.microbus.core.unit;
+package org.zhupanovdm.microbus.core.di;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.App;
+import org.zhupanovdm.microbus.App;
 import org.zhupanovdm.microbus.core.AppContext;
-import org.zhupanovdm.microbus.core.components.ObjectInitializer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -17,18 +16,24 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.zhupanovdm.microbus.core.unit.UnitQuery.Option.EXACT_TYPE;
+import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.EXACT_TYPE;
 
 @Slf4j
-@Data
 @EqualsAndHashCode(of = { "id" })
 public abstract class UnitHolder<T extends Executable> {
+    @Getter
     private final String id;
+
+    @Getter
     private final String name;
-    protected final T constructor;
+
+    @Getter
     private final Class<?> type;
+
+    protected final T constructor;
+    protected final AppContext context;
+
     private final CreationStrategy strategy;
-    private final AppContext context;
 
     public UnitHolder(String id, Class<?> type, T constructor, String name, Class<? extends CreationStrategy> creationStrategy) {
         this.id = id;

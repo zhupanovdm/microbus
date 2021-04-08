@@ -1,6 +1,6 @@
-package org.zhupanovdm.microbus.core.unit;
+package org.zhupanovdm.microbus.core.di;
 
-import org.zhupanovdm.microbus.core.annotations.Id;
+import org.zhupanovdm.microbus.core.annotation.Id;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;

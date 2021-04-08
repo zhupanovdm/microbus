@@ -1,8 +1,6 @@
-package org.zhupanovdm.microbus.core.components;
+package org.zhupanovdm.microbus.core.di;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.unit.UnitQuery;
-import org.zhupanovdm.microbus.core.unit.UnitRegistry;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.Field;

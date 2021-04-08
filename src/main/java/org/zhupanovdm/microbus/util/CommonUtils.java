@@ -1,16 +1,13 @@
-package org.zhupanovdm.microbus.utils;
+package org.zhupanovdm.microbus.util;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class CommonUtils {
     public static <R> void printTable(Table<R, ?, ?> table) {

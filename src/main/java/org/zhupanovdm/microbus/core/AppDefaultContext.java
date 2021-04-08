@@ -1,12 +1,13 @@
 package org.zhupanovdm.microbus.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.zhupanovdm.microbus.App;
 import org.zhupanovdm.microbus.core.reflector.AnnotationsRegistry;
 import org.zhupanovdm.microbus.core.reflector.PackageScanner;
-import org.zhupanovdm.microbus.core.components.DependencyQualifier;
-import org.zhupanovdm.microbus.core.components.ObjectInitializer;
-import org.zhupanovdm.microbus.core.unit.UnitQuery;
-import org.zhupanovdm.microbus.core.unit.UnitRegistry;
+import org.zhupanovdm.microbus.core.di.DependencyQualifier;
+import org.zhupanovdm.microbus.core.di.ObjectInitializer;
+import org.zhupanovdm.microbus.core.di.UnitQuery;
+import org.zhupanovdm.microbus.core.di.UnitRegistry;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
@@ -27,8 +28,11 @@ public class AppDefaultContext implements AppContext {
     }
 
     private void init() {
+        PackageScanner packageScanner = new PackageScanner();
+
         annotationsRegistry = new AnnotationsRegistry();
-        annotationsRegistry.scan(new PackageScanner().scan(appClass.getPackageName()));
+        annotationsRegistry.scan(packageScanner.scan(App.class.getPackageName()));
+        annotationsRegistry.scan(packageScanner.scan(appClass.getPackageName()));
 
         argumentQualifier = new DependencyQualifier<>(UnitQuery::of);
         fieldQualifier = new DependencyQualifier<>(UnitQuery::of);

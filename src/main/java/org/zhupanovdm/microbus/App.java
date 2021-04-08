@@ -1,6 +1,9 @@
-package org.zhupanovdm.microbus.core;
+package org.zhupanovdm.microbus;
 
 import lombok.extern.slf4j.Slf4j;
+import org.zhupanovdm.microbus.core.ActivationLauncher;
+import org.zhupanovdm.microbus.core.AppContext;
+import org.zhupanovdm.microbus.core.AppDefaultContext;
 
 import java.util.Arrays;
 

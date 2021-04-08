@@ -3,10 +3,10 @@ package org.zhupanovdm.microbus.core;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.core.activator.ActivatorTemplate;
-import org.zhupanovdm.microbus.core.annotations.Activator;
+import org.zhupanovdm.microbus.core.annotation.Activator;
 import org.zhupanovdm.microbus.core.reflector.AnnotatedElementsHolder;
 import org.zhupanovdm.microbus.core.reflector.AnnotationsRegistry;
-import org.zhupanovdm.microbus.utils.CommonUtils;
+import org.zhupanovdm.microbus.util.CommonUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;

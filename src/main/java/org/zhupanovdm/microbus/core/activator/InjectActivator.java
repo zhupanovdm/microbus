@@ -1,8 +1,8 @@
 package org.zhupanovdm.microbus.core.activator;
 
-import org.zhupanovdm.microbus.core.annotations.Activator;
-import org.zhupanovdm.microbus.core.annotations.Inject;
-import org.zhupanovdm.microbus.core.unit.UnitQuery;
+import org.zhupanovdm.microbus.core.annotation.Activator;
+import org.zhupanovdm.microbus.core.annotation.Inject;
+import org.zhupanovdm.microbus.core.di.UnitQuery;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;

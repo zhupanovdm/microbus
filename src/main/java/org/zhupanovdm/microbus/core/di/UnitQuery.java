@@ -1,8 +1,8 @@
-package org.zhupanovdm.microbus.core.unit;
+package org.zhupanovdm.microbus.core.di;
 
 import lombok.Data;
 import lombok.ToString;
-import org.zhupanovdm.microbus.utils.CommonUtils;
+import org.zhupanovdm.microbus.util.CommonUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static org.zhupanovdm.microbus.core.unit.UnitQuery.Option.EXACT_TYPE;
-import static org.zhupanovdm.microbus.core.unit.UnitQuery.Option.PERMISSIVE_ID;
+import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.EXACT_TYPE;
+import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.PERMISSIVE_ID;
 
 @Data
 @ToString

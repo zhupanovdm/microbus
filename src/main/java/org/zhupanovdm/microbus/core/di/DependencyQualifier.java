@@ -1,7 +1,6 @@
-package org.zhupanovdm.microbus.core.components;
+package org.zhupanovdm.microbus.core.di;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.unit.UnitQuery;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Map;

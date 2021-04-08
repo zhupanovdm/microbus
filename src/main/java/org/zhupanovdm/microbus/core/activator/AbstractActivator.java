@@ -1,6 +1,6 @@
 package org.zhupanovdm.microbus.core.activator;
 
-import org.zhupanovdm.microbus.core.App;
+import org.zhupanovdm.microbus.App;
 import org.zhupanovdm.microbus.core.AppContext;
 
 import java.lang.annotation.Annotation;

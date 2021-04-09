@@ -17,42 +17,43 @@ import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
 @Slf4j
 @ThreadSafe
 public class UnitRegistry {
-    private final Map<String, UnitHolder<?>> ids = new HashMap<>();
-    private final ClassMappedValueScanner<UnitHolder<?>> types = new ClassMappedValueScanner<>(UnitHolder::getType);
+    private final Map<String, UnitHolder> ids = new HashMap<>();
+    private final ClassMappedValueScanner<UnitHolder> types = new ClassMappedValueScanner<>(UnitHolder::getType);
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public void register(@NonNull UnitHolder<?> unit) {
+    public void register(@NonNull UnitHolder unit) {
         doWithLock(lock.writeLock(), () -> {
-            if (ids.containsKey(unit.getId())) {
-                log.error("Unit with the same id already registered {}", ids.get(unit.getId()));
-                throw new IllegalArgumentException("Unit with the same id is already registered " + unit);
+            UnitHolder registered = ids.get(unit.getId());
+            if (registered == null) {
+                types.put(unit);
+                return ids.put(unit.getId(), unit);
             }
-            types.put(unit);
-            return ids.put(unit.getId(), unit);
+            log.error("Unit with the same id {} already registered {}", registered.getId(), registered.getName());
+            throw new IllegalArgumentException("Unit with the same id is already registered " + unit);
         });
     }
 
-    public Optional<UnitHolder<?>> request(@NonNull UnitQuery query) {
+    public Optional<UnitHolder> request(@NonNull UnitQuery query) {
         return doWithLock(lock.readLock(), () -> searchMatchingUnit(query));
     }
 
-    private Optional<UnitHolder<?>> searchMatchingUnit(UnitQuery query) {
+    private Optional<UnitHolder> searchMatchingUnit(UnitQuery query) {
         if (CommonUtils.isDefined(query.getId())) {
-            UnitHolder<?> unitHolder = ids.get(query.getId());
+            UnitHolder unitHolder = ids.get(query.getId());
             if (query.matches(unitHolder))
                 return Optional.of(unitHolder);
             if (!query.hasOption(PERMISSIVE_ID))
                 return Optional.empty();
         }
 
-        Set<UnitHolder<?>> result = new HashSet<>();
+        Set<UnitHolder> result = new HashSet<>();
         types.scan(query.getType(), (units, integer) -> {
             result.addAll(units);
             return !query.hasOption(EXACT_TYPE);
         });
 
         if (result.size() > 1) {
-            log.error("Ambiguous unit query {}", query);
+            log.error("Ambiguous unit query {} found: {}", query, result);
             throw new IllegalStateException("Ambiguous unit query");
         }
 

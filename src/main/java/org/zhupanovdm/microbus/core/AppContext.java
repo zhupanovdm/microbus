@@ -1,10 +1,11 @@
 package org.zhupanovdm.microbus.core;
 
-import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
 import org.zhupanovdm.microbus.core.di.DependencyQualifier;
 import org.zhupanovdm.microbus.core.di.ObjectInitializer;
 import org.zhupanovdm.microbus.core.di.UnitRegistry;
+import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 
@@ -13,7 +14,8 @@ public interface AppContext {
     String[] getArgs();
     AnnotationRegistry getAnnotationRegistry();
     UnitRegistry getUnitRegistry();
-    DependencyQualifier<Field> getFieldQualifier();
+    DependencyQualifier<Executable> getExecutableTargetQualifier();
     DependencyQualifier<Parameter> getArgumentQualifier();
+    DependencyQualifier<Field> getFieldQualifier();
     ObjectInitializer getObjectInitializer();
 }

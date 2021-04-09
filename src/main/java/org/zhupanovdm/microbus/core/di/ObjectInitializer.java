@@ -1,32 +1,26 @@
 package org.zhupanovdm.microbus.core.di;
 
 import lombok.extern.slf4j.Slf4j;
+import org.zhupanovdm.microbus.core.AppContext;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.Field;
-import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 @Slf4j
 @NotThreadSafe
 public class ObjectInitializer {
-    private final UnitRegistry registry;
-    private final DependencyQualifier<Field> qualifier;
+    private final AppContext context;
 
-    public ObjectInitializer(UnitRegistry registry, DependencyQualifier<Field> qualifier) {
-        this.registry = registry;
-        this.qualifier = qualifier;
+    public ObjectInitializer(AppContext context) {
+        this.context = context;
     }
 
-    public void init(Object instance) {
+    public void init(Object instance, Function<UnitQuery, ?> injector) {
+        DependencyQualifier<Field> qualifier = context.getFieldQualifier();
         qualifier.getAll().stream()
             .filter(field -> field.getDeclaringClass().equals(instance.getClass()))
-            .forEach(field -> {
-                UnitQuery query = qualifier.toQuery(field);
-                inject(instance, field, registry.request(query).orElseThrow(() -> {
-                    log.error("Cannot satisfy injection to {} with query {} for instance {}", field, query, instance);
-                    return new NoSuchElementException("Appropriate unit not found " + query);
-                }).resolve());
-            });
+            .forEach(field -> inject(instance, field, injector.apply(qualifier.toQuery(field))));
     }
 
     private void inject(Object instance, Field field, Object value) {

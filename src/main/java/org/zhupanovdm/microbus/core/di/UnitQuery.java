@@ -30,7 +30,7 @@ public class UnitQuery {
         this.options.addAll(Arrays.asList(options));
     }
 
-    public boolean matches(@Nullable UnitHolder<?> unitHolder) {
+    public boolean matches(@Nullable UnitHolder unitHolder) {
         if (unitHolder == null)
             return false;
 

@@ -18,13 +18,19 @@ public class DependencyQualifier<T> {
         this.defaultDependency = defaultDependency;
     }
 
+    public DependencyQualifier() {
+        this(null);
+    }
+
     public void qualify(T element, UnitQuery query) {
         definedDependencies.put(element, query);
     }
 
     public UnitQuery toQuery(T element) {
-        UnitQuery predefined = definedDependencies.get(element);
-        return predefined == null ? defaultDependency.apply(element) : predefined;
+        UnitQuery query = definedDependencies.get(element);
+        if (query == null && defaultDependency != null)
+            query = defaultDependency.apply(element);
+        return query;
     }
 
     public Set<T> getAll() {

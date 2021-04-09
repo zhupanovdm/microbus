@@ -13,7 +13,7 @@ import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
 
 @Slf4j
 public abstract class CreationStrategy {
-    public abstract Object getInstance(Supplier<?> spawner, Consumer<Object> initializer);
+    public abstract Object getInstance(Supplier<?> spawner);
 
     @ThreadSafe
     public static class Singleton extends CreationStrategy {
@@ -21,12 +21,11 @@ public abstract class CreationStrategy {
         private final Lock lock = new ReentrantLock();
 
         @Override
-        public Object getInstance(Supplier<?> spawner, Consumer<Object> initializer) {
+        public Object getInstance(Supplier<?> spawner) {
             if (instance == null) {
                 doWithLock(lock, () -> {
-                    if (instance == null)
-                        initializer.accept(instance = spawner.get());
-                    return null;
+                    if (instance == null) instance = spawner.get();
+                    return instance;
                 });
             }
             return instance;
@@ -36,10 +35,8 @@ public abstract class CreationStrategy {
     @ThreadSafe
     public static class Factory extends CreationStrategy {
         @Override
-        public Object getInstance(Supplier<?> spawner, Consumer<Object> initializer) {
-            Object instance = spawner.get();
-            initializer.accept(instance);
-            return instance;
+        public Object getInstance(Supplier<?> spawner) {
+            return spawner.get();
         }
     }
 

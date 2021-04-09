@@ -2,13 +2,14 @@ package org.zhupanovdm.microbus.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.App;
-import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
-import org.zhupanovdm.microbus.core.reflector.PackageScanner;
 import org.zhupanovdm.microbus.core.di.DependencyQualifier;
 import org.zhupanovdm.microbus.core.di.ObjectInitializer;
 import org.zhupanovdm.microbus.core.di.UnitQuery;
 import org.zhupanovdm.microbus.core.di.UnitRegistry;
+import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
+import org.zhupanovdm.microbus.core.reflector.PackageScanner;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 
@@ -17,6 +18,7 @@ public class AppDefaultContext implements AppContext {
     private final Class<?> appClass;
     private final String[] args;
     private final AnnotationRegistry annotationRegistry;
+    private final DependencyQualifier<Executable> executableTargetQualifier;
     private final DependencyQualifier<Field> fieldQualifier;
     private final DependencyQualifier<Parameter> argumentQualifier;
     private final ObjectInitializer objectInitializer;
@@ -29,8 +31,9 @@ public class AppDefaultContext implements AppContext {
         annotationRegistry = new AnnotationRegistry();
         argumentQualifier = new DependencyQualifier<>(UnitQuery::of);
         fieldQualifier = new DependencyQualifier<>(UnitQuery::of);
+        executableTargetQualifier = new DependencyQualifier<>();
         unitRegistry = new UnitRegistry();
-        objectInitializer = new ObjectInitializer(unitRegistry, fieldQualifier);
+        objectInitializer = new ObjectInitializer(this);
     }
 
     private void init() {
@@ -63,6 +66,11 @@ public class AppDefaultContext implements AppContext {
     @Override
     public UnitRegistry getUnitRegistry() {
         return unitRegistry;
+    }
+
+    @Override
+    public DependencyQualifier<Executable> getExecutableTargetQualifier() {
+        return executableTargetQualifier;
     }
 
     @Override

@@ -1,19 +1,14 @@
 package org.zhupanovdm.microbus.core.di;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.AppContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 @Slf4j
 public class InjectableConstructor extends InjectableExecutable<Constructor<?>> {
-    public InjectableConstructor(Constructor<?> executable, AppContext context) {
-        super(executable, context);
-    }
-
-    public InjectableConstructor(Constructor<?> executable) {
-        super(executable);
+    public InjectableConstructor(Constructor<?> executable, DependencyQualifierProvider qualifierProvider) {
+        super(executable, qualifierProvider);
     }
 
     @Override

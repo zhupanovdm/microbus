@@ -1,4 +1,4 @@
-package org.zhupanovdm.microbus.util;
+package org.zhupanovdm.microbus.core.reflector;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;

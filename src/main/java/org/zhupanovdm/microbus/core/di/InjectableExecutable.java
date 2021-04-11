@@ -1,26 +1,19 @@
 package org.zhupanovdm.microbus.core.di;
 
 import lombok.Getter;
-import org.zhupanovdm.microbus.App;
-import org.zhupanovdm.microbus.core.AppContext;
 
 import java.lang.reflect.Executable;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.function.Function;
 
 public abstract class InjectableExecutable<T extends Executable> {
     @Getter
     protected final T executable;
-    protected final AppContext context;
+    protected final DependencyQualifierProvider qualifierProvider;
 
-    public InjectableExecutable(T executable, AppContext context) {
+    public InjectableExecutable(T executable, DependencyQualifierProvider qualifierProvider) {
         this.executable = executable;
-        this.context = context;
-    }
-
-    public InjectableExecutable(T executable) {
-        this(executable, App.getContext());
+        this.qualifierProvider = qualifierProvider;
     }
 
     public Object invoke(Function<UnitQuery, ?> injector) {
@@ -28,15 +21,14 @@ public abstract class InjectableExecutable<T extends Executable> {
     }
 
     protected Object[] getArgs(Function<UnitQuery, ?> injector) {
-        DependencyQualifier<Parameter> argumentQualifier = context.getArgumentQualifier();
         return Arrays.stream(executable.getParameters())
-                .map(argumentQualifier::toQuery)
+                .map(qualifierProvider::qualify)
                 .map(injector)
                 .toArray();
     }
 
     protected Object getTarget(Function<UnitQuery, ?> injector) {
-        UnitQuery query = context.getExecutableTargetQualifier().toQuery(executable);
+        UnitQuery query = qualifierProvider.qualify(executable);
         return query == null ? null : injector.apply(query);
     }
 

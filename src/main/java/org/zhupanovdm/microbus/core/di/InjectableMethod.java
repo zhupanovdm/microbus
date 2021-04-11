@@ -1,19 +1,14 @@
 package org.zhupanovdm.microbus.core.di;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.AppContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @Slf4j
 public class InjectableMethod extends InjectableExecutable<Method> {
-    public InjectableMethod(Method executable, AppContext context) {
-        super(executable, context);
-    }
-
-    public InjectableMethod(Method executable) {
-        super(executable);
+    public InjectableMethod(Method executable, DependencyQualifierProvider qualifierProvider) {
+        super(executable, qualifierProvider);
     }
 
     @Override

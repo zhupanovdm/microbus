@@ -2,7 +2,7 @@ package org.zhupanovdm.microbus.core.di;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.util.ClassMappedValueScanner;
+import org.zhupanovdm.microbus.core.reflector.ClassMappedValueScanner;
 import org.zhupanovdm.microbus.util.CommonUtils;
 
 import javax.annotation.concurrent.ThreadSafe;

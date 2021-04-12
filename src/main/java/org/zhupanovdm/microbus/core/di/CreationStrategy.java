@@ -1,7 +1,5 @@
 package org.zhupanovdm.microbus.core.di;
 
-import lombok.extern.slf4j.Slf4j;
-
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -9,9 +7,13 @@ import java.util.function.Supplier;
 
 import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
 
-@Slf4j
 public abstract class CreationStrategy {
     public abstract Object getInstance(UnitHolder unit, Supplier<?> spawner);
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
     @ThreadSafe
     public static class Singleton extends CreationStrategy {

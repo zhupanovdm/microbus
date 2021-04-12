@@ -24,12 +24,16 @@ public class ActiveObjectActivator implements ActivatorTemplate<ActiveObject> {
 
     @Override
     public void onDiscover(Class<?> aClass, ActiveObject metadata) {
-        provider.resolve(new UnitQuery(null, aClass, nameOf(aClass), EXACT_TYPE));
+        String name = nameOf(aClass);
+        Object instance = provider.resolve(new UnitQuery(null, aClass, name, EXACT_TYPE));
+        log.debug("Active object resolved: {} from definition: {}", instance, name);
     }
 
     @Override
     public void onDiscover(Method method, ActiveObject annotation) {
-        provider.resolve(new UnitQuery(null, method.getReturnType(), nameOf(method), EXACT_TYPE));
+        String name = nameOf(method);
+        Object instance = provider.resolve(new UnitQuery(null, method.getReturnType(), name, EXACT_TYPE));
+        log.debug("Active object resolved: {} from definition: {}", instance, name);
     }
 
 }

@@ -29,12 +29,13 @@ public class UnitActivator implements ActivatorTemplate<Unit> {
     public void onDiscover(Class<?> clazz, Unit metadata) {
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         if (constructors.length != 1) {
-            log.error("Only one constructor is supported for units {}", clazz);
-            throw new IllegalArgumentException("Only one constructor is supported: " + clazz);
+            log.error("Only one constructor is supported for unit: {}", clazz);
+            throw new IllegalArgumentException("Only one constructor is supported for unit: " + clazz);
         }
 
         InjectableConstructor constructor = new InjectableConstructor(constructors[0], provider);
-        registry.register(new UnitHolder(idOf(clazz), clazz, constructor, nameOf(clazz), metadata.strategy()));
+        UnitHolder unit = new UnitHolder(idOf(clazz), clazz, constructor, nameOf(clazz), metadata.strategy());
+        registry.register(unit);
     }
 
     @Override
@@ -42,7 +43,8 @@ public class UnitActivator implements ActivatorTemplate<Unit> {
         provider.define(method, new UnitQuery(null, method.getDeclaringClass(), nameOf(method.getDeclaringClass()), EXACT_TYPE));
 
         InjectableMethod constructor = new InjectableMethod(method, provider);
-        registry.register(new UnitHolder(idOf(method), method.getReturnType(), constructor, nameOf(method), metadata.strategy()));
+        UnitHolder unit = new UnitHolder(idOf(method), method.getReturnType(), constructor, nameOf(method), metadata.strategy());
+        registry.register(unit);
     }
 
 }

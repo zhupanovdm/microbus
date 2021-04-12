@@ -13,9 +13,11 @@ public class InjectableConstructor extends InjectableExecutable<Constructor<?>> 
 
     @Override
     protected Object doInvoke(Object target, Object[] args) {
+        log.trace("Invoking: {} with args: {} on target: {}", executable, args, target);
         try {
             return executable.newInstance(args);
         } catch (IllegalAccessException e) {
+            log.warn("Retrying invocation due to access error: {}", e.getLocalizedMessage());
             executable.setAccessible(true);
             Object instance = doInvoke(target, args);
             executable.setAccessible(false);

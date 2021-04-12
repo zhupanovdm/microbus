@@ -22,14 +22,18 @@ public class InjectActivator implements ActivatorTemplate<Inject> {
 
     @Override
     public void onDiscover(Field field, Inject metadata) {
-        if (isDefined(metadata.value()))
-            provider.define(field, new UnitQuery(metadata.value(), field.getType(), null));
+        if (isDefined(metadata.value())) {
+            UnitQuery query = new UnitQuery(metadata.value(), field.getType(), null);
+            provider.define(field, query);
+        }
     }
 
     @Override
     public void onDiscover(Parameter arg, Inject metadata) {
-        if (isDefined(metadata.value()))
-            provider.define(arg, new UnitQuery(metadata.value(), arg.getType(), null));
+        if (isDefined(metadata.value())) {
+            UnitQuery query = new UnitQuery(metadata.value(), arg.getType(), null);
+            provider.define(arg, query);
+        }
     }
 
 }

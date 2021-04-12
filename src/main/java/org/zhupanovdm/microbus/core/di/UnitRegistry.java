@@ -31,10 +31,13 @@ public class UnitRegistry {
             log.error("Unit with the same id {} already registered {}", registered.getId(), registered.getName());
             throw new IllegalArgumentException("Unit with the same id is already registered " + unit);
         });
+        log.trace("Registered: {}", unit);
     }
 
     public Optional<UnitHolder> request(@NonNull UnitQuery query) {
-        return doWithLock(lock.readLock(), () -> searchMatchingUnit(query));
+        Optional<UnitHolder> unit = doWithLock(lock.readLock(), () -> searchMatchingUnit(query));
+        log.trace("Request {} results {}", query, unit);
+        return unit;
     }
 
     private Optional<UnitHolder> searchMatchingUnit(UnitQuery query) {

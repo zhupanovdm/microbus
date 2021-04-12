@@ -39,7 +39,7 @@ public class InstanceProvider {
         CreationStrategy strategy = strategies.get(unit.getCreationStrategy());
         if (strategy == null) {
             log.error("Unknown creation strategy for {}: {}", unit, unit.getCreationStrategy());
-            throw new IllegalStateException("Unknown creation strategy");
+            throw new IllegalStateException("Unknown creation strategy: " + unit.getCreationStrategy());
         }
 
         Function<UnitQuery, ?> injector = query -> resolve(query, chain);
@@ -50,6 +50,7 @@ public class InstanceProvider {
         });
         chain.remove(unit);
 
+        log.trace("Resolved using {} strategy: {} => {}", strategy, unit, instance);
         return instance;
     }
 
@@ -67,9 +68,11 @@ public class InstanceProvider {
     }
 
     private void inject(Object instance, Field field, Object value) {
+        log.trace("Initializing {} field {} with: {}", instance, field.getName(), value);
         try {
             field.set(instance, value);
         } catch (IllegalAccessException e) {
+            log.warn("Retrying field init due to access error: {}", e.getLocalizedMessage());
             field.setAccessible(true);
             inject(instance, field, value);
             field.setAccessible(false);

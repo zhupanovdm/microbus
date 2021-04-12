@@ -75,7 +75,13 @@ public class AppDefaultContext implements AppContext {
     }
 
     @Override
+    public void destroy() {
+
+    }
+
+    @Override
     public String toString() {
         return String.format("%s(%s)", getClass().getSimpleName(), getName());
     }
+
 }

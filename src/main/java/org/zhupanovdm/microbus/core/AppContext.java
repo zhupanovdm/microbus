@@ -12,4 +12,5 @@ public interface AppContext {
     UnitRegistry getUnitRegistry();
     InstanceProvider getInstanceProvider();
     DependencyQualifierProvider getQualifierProvider();
+    void destroy();
 }

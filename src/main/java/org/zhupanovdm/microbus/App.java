@@ -17,6 +17,10 @@ public class App {
         new ActivationLauncher(context).engage();
     }
 
+    public static void shutdown() {
+        context.destroy();
+    }
+
     public static AppContext getContext() {
         return context;
     }

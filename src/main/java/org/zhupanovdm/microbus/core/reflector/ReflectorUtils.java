@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
@@ -12,6 +13,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ReflectorUtils {
+    public static String getPackageName(Class<?> clazz) {
+        return clazz.getPackageName();
+    }
+
+    public static String getPackageName(Field field) {
+        return getPackageName(field.getDeclaringClass());
+    }
+
+    public static String getPackageName(Executable executable) {
+        return getPackageName(executable.getDeclaringClass());
+    }
+
+    public static String getPackageName(Parameter parameter) {
+        return getPackageName(parameter.getDeclaringExecutable());
+    }
+
     public static <T extends Member> Multimap<Class<?>, T> getDeclaringClass(Collection<T> members) {
         Multimap<Class<?>, T> map = HashMultimap.create();
         for (T member : members) {

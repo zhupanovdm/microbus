@@ -11,37 +11,28 @@ public class AppDefaultContext implements AppContext {
     private final Class<?> appClass;
     private final String[] args;
     private final AnnotationRegistry annotationRegistry;
+    private final ActivatorRegistry activatorRegistry;
+    private final UnitRegistry unitRegistry;
     private final InstanceProvider instanceProvider;
     private final DependencyQualifierProvider qualifierProvider;
-    private final UnitRegistry unitRegistry;
 
     private AppDefaultContext(Class<?> appClass, String[] args) {
         this.appClass = appClass;
         this.args = args;
 
         this.annotationRegistry = new AnnotationRegistry();
+        this.activatorRegistry = new ActivatorRegistry();
+        this.unitRegistry = new UnitRegistry();
+
         this.qualifierProvider = new DependencyQualifierProvider(
                 new DefaultDependencyQualifier<>(UnitQuery::of),
                 new DefaultDependencyQualifier<>(UnitQuery::of),
                 new DefaultDependencyQualifier<>());
-
-        this.unitRegistry = new UnitRegistry();
         this.instanceProvider = new InstanceProvider(this.unitRegistry, this.qualifierProvider);
     }
 
-    private void init() {
-        instanceProvider.registerCreationStrategy(new CreationStrategy.Singleton());
-        instanceProvider.registerCreationStrategy(new CreationStrategy.Factory());
-
-        PackageScanner packageScanner = new PackageScanner();
-        annotationRegistry.scan(packageScanner.scan(App.class.getPackageName()));
-        annotationRegistry.scan(packageScanner.scan(appClass.getPackageName()));
-    }
-
     public static AppContext create(Class<?> appClass, String[] args) {
-        AppDefaultContext context = new AppDefaultContext(appClass, args);
-        context.init();
-        return context;
+        return new AppDefaultContext(appClass, args);
     }
 
     @Override
@@ -57,6 +48,11 @@ public class AppDefaultContext implements AppContext {
     @Override
     public AnnotationRegistry getAnnotationRegistry() {
         return annotationRegistry;
+    }
+
+    @Override
+    public ActivatorRegistry getActivatorRegistry() {
+        return activatorRegistry;
     }
 
     @Override

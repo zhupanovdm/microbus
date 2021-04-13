@@ -8,9 +8,12 @@ import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
 public interface AppContext {
     String getName();
     String[] getArgs();
+
     AnnotationRegistry getAnnotationRegistry();
+    ActivatorRegistry getActivatorRegistry();
     UnitRegistry getUnitRegistry();
     InstanceProvider getInstanceProvider();
     DependencyQualifierProvider getQualifierProvider();
+
     void destroy();
 }

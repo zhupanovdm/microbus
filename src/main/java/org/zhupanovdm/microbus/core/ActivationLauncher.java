@@ -1,6 +1,5 @@
 package org.zhupanovdm.microbus.core;
 
-import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.core.activator.ActivatorTemplate;
 import org.zhupanovdm.microbus.core.annotation.Activator;
@@ -10,65 +9,48 @@ import org.zhupanovdm.microbus.util.CommonUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.*;
+import java.util.function.Predicate;
+
+import static org.zhupanovdm.microbus.core.reflector.ReflectorUtils.getPackageName;
 
 @Slf4j
 public class ActivationLauncher {
     public static final String ON_DISCOVER_METHOD = "onDiscover";
 
-    private final AppContext context;
-    private final Map<ActivatorTemplate<?>, Activator> metadata = new HashMap<>();
-    private final Queue<ActivatorTemplate<?>> activators = new PriorityQueue<>(Comparator.comparingInt(a -> metadata.get(a).priority()));
+    private final AnnotationRegistry annotationRegistry;
+    private final ActivatorRegistry activatorRegistry;
 
-    public ActivationLauncher(AppContext context) {
-        this.context = context;
+    public ActivationLauncher(AnnotationRegistry annotationRegistry, ActivatorRegistry activatorRegistry) {
+        this.annotationRegistry = annotationRegistry;
+        this.activatorRegistry = activatorRegistry;
+    }
+
+    public ActivationLauncher scan() {
+        CommonUtils.visitRows(annotationRegistry.getClasses().scan(Activator.class), (type, table) -> activatorRegistry.register(type, AnnotatedElementHolder.resolveElement(type, table)));
+        return this;
     }
 
     public void engage() {
-        log.debug("Engaging activators");
+        engage(null);
+    }
 
-        CommonUtils.visitRows(context.getAnnotationRegistry().getClasses().scan(Activator.class), (type, table) -> createActivator(type, resolveKey(type, table)));
+    public void engage(String packageRegex) {
+        log.debug("Engaging activators with package filter: {}", packageRegex);
 
-        while (activators.peek() != null) {
-            ActivatorTemplate<?> activator = activators.poll();
-
-            AnnotationRegistry registry = context.getAnnotationRegistry();
-            discover(activator, Class.class, registry.getClasses());
-            discover(activator, Constructor.class, registry.getConstructors());
-            discover(activator, Method.class, registry.getMethods());
-            discover(activator, Field.class, registry.getFields());
-            discover(activator, Parameter.class, registry.getParameters());
-
+        activatorRegistry.collect().forEach(activator -> {
+            discover(activator, Class.class, annotationRegistry.getClasses(), aClass -> packageRegex == null || getPackageName(aClass).matches(packageRegex));
+            discover(activator, Constructor.class, annotationRegistry.getConstructors(), executable -> packageRegex == null || getPackageName(executable).matches(packageRegex));
+            discover(activator, Method.class, annotationRegistry.getMethods(), executable -> packageRegex == null || getPackageName(executable).matches(packageRegex));
+            discover(activator, Field.class, annotationRegistry.getFields(), field -> packageRegex == null || getPackageName(field).matches(packageRegex));
+            discover(activator, Parameter.class, annotationRegistry.getParameters(), param -> packageRegex == null || getPackageName(param).matches(packageRegex));
             activator.activate();
 
             log.info("Activation complete: {}", activator.getClass().getCanonicalName());
-        }
-    }
-
-    private void createActivator(Class<?> type, Activator annotation) {
-        ActivatorTemplate<?> activator;
-        try {
-            activator = (ActivatorTemplate<?>) type.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            log.error("Failed to instantiate activator {}", type, e);
-            throw new RuntimeException("Failed to instantiate activator " + type, e);
-        }
-        metadata.put(activator, annotation);
-        activators.add(activator);
-    }
-
-    private static <R, C> C resolveKey(R key, Table<R, C, Integer> table) {
-        return AnnotatedElementHolder.withHighestPriorityResolved(key, table, collision -> {
-            log.error("Ambiguous definitions for {}: {}", key, collision);
-            throw new IllegalStateException("Ambiguous definitions for " + key + ": " + collision);
-        }).orElseThrow(() -> {
-            log.error("No definitions found for {}", key);
-            return new NoSuchElementException("No definitions found for " + key);
         });
     }
 
-    private <T extends AnnotatedElement> void discover(ActivatorTemplate<?> activator, Class<?> elementType, AnnotatedElementHolder<T> annotated) {
-        Class<? extends Annotation> marker = metadata.get(activator).marker();
+    private <T extends AnnotatedElement> void discover(ActivatorTemplate<?> activator, Class<?> elementType, AnnotatedElementHolder<T> annotated, Predicate<T> filter) {
+        Class<? extends Annotation> marker = activatorRegistry.getMetadata(activator.getClass()).marker();
 
         Method method;
         try {
@@ -77,8 +59,8 @@ public class ActivationLauncher {
             return;
         }
 
-        CommonUtils.visitRows(annotated.scan(marker), (element, table) -> {
-            Annotation annotation = resolveKey(element, table);
+        CommonUtils.visitRows(annotated.scan(marker, filter), (element, table) -> {
+            Annotation annotation = AnnotatedElementHolder.resolveElement(element, table);
             try {
                 method.invoke(activator, element, annotation);
             } catch (IllegalAccessException | InvocationTargetException e) {

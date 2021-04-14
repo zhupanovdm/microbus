@@ -1,6 +1,7 @@
-package org.zhupanovdm.microbus.core.activator;
+package org.zhupanovdm.microbus.core.activator.impl;
 
 import org.zhupanovdm.microbus.App;
+import org.zhupanovdm.microbus.core.activator.ActivatorTemplate;
 import org.zhupanovdm.microbus.core.annotation.Activator;
 import org.zhupanovdm.microbus.core.annotation.Inject;
 import org.zhupanovdm.microbus.core.di.DependencyQualifierProvider;
@@ -9,7 +10,7 @@ import org.zhupanovdm.microbus.core.di.UnitQuery;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 
-import static org.zhupanovdm.microbus.util.CommonUtils.isDefined;
+import static org.zhupanovdm.microbus.CommonUtils.isDefined;
 
 @Activator(marker = Inject.class, priority = 11)
 @SuppressWarnings("unused")

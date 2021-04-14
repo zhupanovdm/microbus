@@ -3,7 +3,7 @@ package org.zhupanovdm.microbus.core.di;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.core.reflector.ClassMappedValueScanner;
-import org.zhupanovdm.microbus.util.CommonUtils;
+import org.zhupanovdm.microbus.CommonUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.*;
@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.EXACT_TYPE;
 import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.PERMISSIVE_ID;
-import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
+import static org.zhupanovdm.microbus.CommonUtils.doWithLock;
 
 @Slf4j
 @ThreadSafe

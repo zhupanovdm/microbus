@@ -1,4 +1,4 @@
-package org.zhupanovdm.microbus.util;
+package org.zhupanovdm.microbus;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
@@ -30,7 +30,7 @@ public class CommonUtils {
         }
     }
 
-    public static <R, C, V> void visitRows(Table<R, C, V> table,  BiConsumer<R, Table<R, C, V>> consumer) {
+    public static <R, C, V> void forEachRow(Table<R, C, V> table, BiConsumer<R, Table<R, C, V>> consumer) {
         table.rowKeySet().forEach(row -> consumer.accept(row, table));
     }
 

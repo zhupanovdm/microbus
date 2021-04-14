@@ -10,9 +10,16 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ReflectorUtils {
+    public static Pattern packageFilterPattern(String patternString) {
+        return patternString == null ? null : Pattern.compile(patternString
+                .replaceAll("\\.", "\\\\.")
+                .replaceAll("\\*", ".*"));
+    }
+
     public static String getPackageName(Class<?> clazz) {
         return clazz.getPackageName();
     }

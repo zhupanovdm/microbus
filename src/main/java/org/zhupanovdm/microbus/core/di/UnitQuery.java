@@ -2,7 +2,7 @@ package org.zhupanovdm.microbus.core.di;
 
 import lombok.Data;
 import lombok.ToString;
-import org.zhupanovdm.microbus.util.CommonUtils;
+import org.zhupanovdm.microbus.CommonUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;

@@ -1,7 +1,8 @@
-package org.zhupanovdm.microbus.core.activator;
+package org.zhupanovdm.microbus.core.activator.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.zhupanovdm.microbus.App;
+import org.zhupanovdm.microbus.core.activator.ActivatorTemplate;
 import org.zhupanovdm.microbus.core.annotation.Activator;
 import org.zhupanovdm.microbus.core.annotation.Unit;
 import org.zhupanovdm.microbus.core.di.*;

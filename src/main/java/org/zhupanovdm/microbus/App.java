@@ -1,11 +1,13 @@
 package org.zhupanovdm.microbus;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.core.ActivationLauncher;
+import org.zhupanovdm.microbus.core.activator.ActivatorHolder;
+import org.zhupanovdm.microbus.core.activator.ActivatorLauncher;
+import org.zhupanovdm.microbus.core.activator.ActivatorRegistry;
 import org.zhupanovdm.microbus.core.AppContext;
 import org.zhupanovdm.microbus.core.AppDefaultContext;
-import org.zhupanovdm.microbus.core.di.CreationStrategy;
-import org.zhupanovdm.microbus.core.di.InstanceProvider;
+import org.zhupanovdm.microbus.core.annotation.Activator;
+import org.zhupanovdm.microbus.core.reflector.AnnotatedElementHolder;
 import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
 import org.zhupanovdm.microbus.core.reflector.PackageScanner;
 
@@ -19,19 +21,15 @@ public class App {
         log.info("Launching app with args: {}", Arrays.toString(args));
         context = AppDefaultContext.create(mainClass, args);
 
-        InstanceProvider instanceProvider = context.getInstanceProvider();
-        instanceProvider.registerCreationStrategy(new CreationStrategy.Singleton());
-        instanceProvider.registerCreationStrategy(new CreationStrategy.Factory());
-
-        PackageScanner packageScanner = new PackageScanner();
-
         AnnotationRegistry annotationRegistry = context.getAnnotationRegistry();
-        annotationRegistry.scan(packageScanner.scan(App.class.getPackageName()));
-        annotationRegistry.scan(packageScanner.scan(mainClass.getPackageName()));
+        annotationRegistry.scan(PackageScanner.scan(App.class.getPackageName()));
+        annotationRegistry.scan(PackageScanner.scan(mainClass.getPackageName()));
 
-        new ActivationLauncher(annotationRegistry, context.getActivatorRegistry())
-                .scan()
-                .engage();
+        ActivatorRegistry registry = context.getActivatorRegistry();
+        CommonUtils.forEachRow(annotationRegistry.getClasses().scan(Activator.class),
+                (type, table) -> registry.register(new ActivatorHolder(type, AnnotatedElementHolder.getSingle(type, table))));
+
+        activate(null);
     }
 
     public static void shutdown() {
@@ -40,6 +38,10 @@ public class App {
 
     public static AppContext getContext() {
         return context;
+    }
+
+    public static void activate(String packages) {
+        new ActivatorLauncher(context, packages).engage();
     }
 
 }

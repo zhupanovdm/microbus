@@ -1,5 +1,7 @@
 package org.zhupanovdm.microbus.core.annotation;
 
+import org.zhupanovdm.microbus.core.di.CreationStrategy;
+
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -7,4 +9,5 @@ import java.lang.annotation.*;
 public @interface Activator {
     Class<? extends Annotation> marker();
     int priority() default Integer.MAX_VALUE;
+    Class<? extends CreationStrategy> strategy() default CreationStrategy.Singleton.class;
 }

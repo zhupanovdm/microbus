@@ -1,25 +1,20 @@
 package org.zhupanovdm.microbus.core.di;
 
 import lombok.extern.slf4j.Slf4j;
+import org.zhupanovdm.microbus.core.AppContext;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.Function;
 
 @Slf4j
 public class InstanceProvider {
-    private final UnitRegistry registry;
-    private final DependencyQualifierProvider provider;
+    private final AppContext context;
 
-    private final Map<Class<? extends CreationStrategy>, CreationStrategy> strategies = new HashMap<>();
-
-    public InstanceProvider(UnitRegistry registry, DependencyQualifierProvider provider) {
-        this.registry = registry;
-        this.provider = provider;
-    }
-
-    public void registerCreationStrategy(CreationStrategy strategy) {
-        strategies.put(strategy.getClass(), strategy);
+    public InstanceProvider(AppContext context) {
+        this.context = context;
     }
 
     public Object resolve(UnitHolder unit) {
@@ -36,18 +31,14 @@ public class InstanceProvider {
             throw new IllegalStateException("Can not resolve recursive dependency");
         }
 
-        CreationStrategy strategy = strategies.get(unit.getCreationStrategy());
+        CreationStrategy strategy = context.getInstanceCreationStrategyProvider().get(unit.getCreationStrategy());
         if (strategy == null) {
             log.error("Unknown creation strategy for {}: {}", unit, unit.getCreationStrategy());
             throw new IllegalStateException("Unknown creation strategy: " + unit.getCreationStrategy());
         }
 
         Function<UnitQuery, ?> injector = query -> resolve(query, chain);
-        Object instance = strategy.getInstance(unit, () -> {
-            Object obj = unit.getConstructor().invoke(injector);
-            init(obj, injector);
-            return obj;
-        });
+        Object instance = strategy.getInstance(unit, () -> initialized(unit.getConstructor().invoke(injector), injector));
         chain.remove(unit);
 
         log.trace("Resolved using {} strategy: {} => {}", strategy, unit, instance);
@@ -55,16 +46,18 @@ public class InstanceProvider {
     }
 
     private Object resolve(UnitQuery query, Set<UnitHolder> chain) {
-        return resolve(registry.request(query).orElseThrow(() -> {
+        return resolve(context.getUnitRegistry().request(query).orElseThrow(() -> {
             log.error("Failed to satisfy unit dependency with query {}", query);
             return new NoSuchElementException("No unit found on specified request");
         }), chain);
     }
 
-    private void init(Object instance, Function<UnitQuery, ?> injector) {
+    private Object initialized(Object instance, Function<UnitQuery, ?> injector) {
+        DependencyQualifierProvider provider = context.getQualifierProvider();
         provider.getFields().getAll().stream()
             .filter(field -> field.getDeclaringClass().equals(instance.getClass()))
             .forEach(field -> inject(instance, field, injector.apply(provider.qualify(field))));
+        return instance;
     }
 
     private void inject(Object instance, Field field, Object value) {

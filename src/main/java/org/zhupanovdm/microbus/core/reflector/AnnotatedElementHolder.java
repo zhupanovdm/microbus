@@ -5,7 +5,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
-import org.zhupanovdm.microbus.util.CommonUtils;
+import org.zhupanovdm.microbus.CommonUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.lang.annotation.Annotation;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.zhupanovdm.microbus.util.CommonUtils.doWithLock;
+import static org.zhupanovdm.microbus.CommonUtils.doWithLock;
 
 @Slf4j
 @ThreadSafe
@@ -81,7 +81,7 @@ public class AnnotatedElementHolder<T extends AnnotatedElement> {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public static <R, C> C resolveElement(R element, Table<R, C, Integer> table) {
+    public static <R, C> C getSingle(R element, Table<R, C, Integer> table) {
         return withHighestPriorityResolved(element, table, collision -> {
             log.error("Ambiguous definitions for {}: {}", element, collision);
             throw new IllegalStateException("Ambiguous definitions for " + element + ": " + collision);

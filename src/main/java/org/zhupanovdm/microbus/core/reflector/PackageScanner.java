@@ -8,7 +8,7 @@ import java.io.IOException;
 @Slf4j
 public class PackageScanner {
     @SuppressWarnings("UnstableApiUsage")
-    public Class<?>[] scan(String packageName) {
+    public static Class<?>[] scan(String packageName) {
         ClassPath classPath;
         try {
             classPath = ClassPath.from(Thread.currentThread().getContextClassLoader());

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @EqualsAndHashCode(of = { "id" })
 @Data
-public class UnitHolder {
+public class UnitHolder implements InstanceHolder<Object> {
     private final String id;
     private final String name;
     private final Class<?> type;
@@ -27,5 +27,15 @@ public class UnitHolder {
 
     public String toString() {
         return "UNIT@" + id;
+    }
+
+    @Override
+    public Object getInstance() {
+        return instance;
+    }
+
+    @Override
+    public void setInstance(Object instance) {
+        this.instance = instance;
     }
 }

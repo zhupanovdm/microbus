@@ -22,7 +22,7 @@ public class App {
         context = AppDefaultContext.create(mainClass, args);
 
         AnnotationRegistry annotationRegistry = context.getAnnotationRegistry();
-        annotationRegistry.scan(PackageScanner.scan(App.class.getPackageName()));
+        annotationRegistry.scan(PackageScanner.scan(ActivatorLauncher.class.getPackageName()));
         annotationRegistry.scan(PackageScanner.scan(mainClass.getPackageName()));
 
         ActivatorRegistry registry = context.getActivatorRegistry();
@@ -40,8 +40,12 @@ public class App {
         return context;
     }
 
-    public static void activate(String packages) {
-        new ActivatorLauncher(context, packages).engage();
+    public static void scan(String packageName) {
+        context.getAnnotationRegistry().scan(PackageScanner.scan(packageName));
+    }
+
+    public static void activate(String packageNames) {
+        new ActivatorLauncher(context, packageNames).engage();
     }
 
 }

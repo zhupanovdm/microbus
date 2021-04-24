@@ -80,6 +80,7 @@ public class AnnotationRegistry {
                 if (acceptAnnotationType(annotation.annotationType())) {
                     registerAnnotationTypeHierarchy(annotation);
                     holder.put(annotation.annotationType(), element);
+                    log.trace("Found {} with {}", element, annotation);
                 }
             }
 

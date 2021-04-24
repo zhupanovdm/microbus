@@ -19,7 +19,13 @@ public class PackageScanner {
 
         return classPath.getTopLevelClassesRecursive(packageName).stream()
                 .map(ClassPath.ClassInfo::load)
-                .filter(aClass -> !aClass.isAnnotation())
+                .filter(aClass -> {
+                    if (aClass.isAnnotation())
+                        return false;
+                    if (log.isTraceEnabled())
+                        log.trace("Found {}", aClass);
+                    return true;
+                })
                 .toArray(Class[]::new);
     }
 }

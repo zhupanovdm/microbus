@@ -47,7 +47,7 @@ public class InstanceProvider {
 
     private Object resolve(UnitQuery query, Set<UnitHolder> chain) {
         return resolve(context.getUnitRegistry().request(query).orElseThrow(() -> {
-            log.error("Failed to satisfy unit dependency with query {}", query);
+            log.error("Failed to satisfy unit request with query {}", query);
             return new NoSuchElementException("No unit found on specified request");
         }), chain);
     }

@@ -7,6 +7,8 @@ import org.zhupanovdm.microbus.core.activator.ActivatorRegistry;
 import org.zhupanovdm.microbus.core.AppContext;
 import org.zhupanovdm.microbus.core.AppDefaultContext;
 import org.zhupanovdm.microbus.core.annotation.Activator;
+import org.zhupanovdm.microbus.core.di.UnitQuery;
+import org.zhupanovdm.microbus.core.di.UnitQuery.Option;
 import org.zhupanovdm.microbus.core.reflector.AnnotatedElementHolder;
 import org.zhupanovdm.microbus.core.reflector.AnnotationRegistry;
 import org.zhupanovdm.microbus.core.reflector.PackageScanner;
@@ -46,6 +48,18 @@ public class App {
 
     public static void activate(String packageNames) {
         new ActivatorLauncher(context, packageNames).engage();
+    }
+
+    public static Object getUnit(String id, Class<?> type, Option ...options) {
+        return context.getInstanceProvider().resolve(new UnitQuery(id, type, null, options));
+    }
+
+    public static Object getUnit(String id) {
+        return getUnit(id, null);
+    }
+
+    public static Object getUnit(Class<?> type) {
+        return getUnit(null, type);
     }
 
 }

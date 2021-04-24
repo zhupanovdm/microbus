@@ -23,4 +23,9 @@ public class InjectableConstructor extends InjectableExecutable<Constructor<?>> 
             throw new RuntimeException("Failed executable invocation: " + executable, e);
         }
     }
+
+    @Override
+    protected boolean usesTarget() {
+        return false;
+    }
 }

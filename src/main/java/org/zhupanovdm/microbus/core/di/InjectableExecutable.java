@@ -28,8 +28,11 @@ public abstract class InjectableExecutable<T extends Executable> {
     }
 
     protected Object getTarget(Function<UnitQuery, ?> injector) {
-        UnitQuery query = qualifierProvider.qualify(executable);
-        return query == null ? null : injector.apply(query);
+        return usesTarget() ? injector.apply(qualifierProvider.qualify(executable)) : null;
+    }
+
+    protected boolean usesTarget() {
+        return true;
     }
 
     protected abstract Object doInvoke(Object target, Object[] args);

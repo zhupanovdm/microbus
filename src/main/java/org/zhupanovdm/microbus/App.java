@@ -50,15 +50,16 @@ public class App {
         new ActivatorLauncher(context, packageNames).engage();
     }
 
-    public static Object getUnit(String id, Class<?> type, Option ...options) {
-        return context.getInstanceProvider().resolve(new UnitQuery(id, type, null, options));
+    public static <T> T getUnit(String id, Class<T> type, Option ...options) {
+        //noinspection unchecked
+        return (T) context.getInstanceProvider().resolve(new UnitQuery(id, type, null, options));
     }
 
     public static Object getUnit(String id) {
         return getUnit(id, null);
     }
 
-    public static Object getUnit(Class<?> type) {
+    public static <T> T getUnit(Class<T> type) {
         return getUnit(null, type);
     }
 

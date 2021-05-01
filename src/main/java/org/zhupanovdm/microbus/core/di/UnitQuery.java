@@ -3,6 +3,7 @@ package org.zhupanovdm.microbus.core.di;
 import lombok.Data;
 import lombok.ToString;
 import org.zhupanovdm.microbus.CommonUtils;
+import org.zhupanovdm.microbus.core.annotation.Inject;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
+import static org.zhupanovdm.microbus.CommonUtils.isDefined;
 import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.EXACT_TYPE;
 import static org.zhupanovdm.microbus.core.di.UnitQuery.Option.PERMISSIVE_ID;
 
@@ -48,12 +50,60 @@ public class UnitQuery {
         return options.contains(option);
     }
 
-    public static UnitQuery of(Field field) {
-        return new UnitQuery(field.getName(), field.getType(), null, PERMISSIVE_ID);
+    public static UnitQueryBuilder create() {
+        return new UnitQueryBuilder();
     }
 
-    public static UnitQuery of(Parameter arg) {
-        return new UnitQuery(null, arg.getType(), null);
+    public static class UnitQueryBuilder {
+        private String id;
+        private Class<?> type;
+        private String name;
+        private final Set<Option> options = EnumSet.noneOf(Option.class);
+
+        public UnitQuery build() {
+            return new UnitQuery(id, type, name, options.toArray(Option[]::new));
+        }
+
+        public UnitQueryBuilder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public UnitQueryBuilder type(Class<?> type) {
+            this.type = type;
+            return this;
+        }
+
+        public UnitQueryBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public UnitQueryBuilder options(Option ...options) {
+            this.options.addAll(Arrays.asList(options));
+            return this;
+        }
+
+        public UnitQueryBuilder from(Field field) {
+            id = field.getName();
+            type = field.getType();
+            options.add(PERMISSIVE_ID);
+            return this;
+        }
+
+        public UnitQueryBuilder from(Parameter param) {
+            type = param.getType();
+            return this;
+        }
+
+        public UnitQueryBuilder from(Inject inject) {
+            if (isDefined(inject.value()))
+                id = inject.value();
+            if (!inject.type().equals(Void.class))
+                type = inject.type();
+            return this;
+        }
+
     }
 
     public enum Option {

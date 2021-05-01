@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 public @interface Inject {
     String value() default "";
+    Class<?> type() default Void.class;
 }

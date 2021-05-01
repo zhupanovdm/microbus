@@ -45,7 +45,13 @@ public class UnitActivator implements ActivatorTemplate<Unit> {
 
     @Override
     public void onDiscover(Method method, Unit metadata) {
-        qualifier.define(method, new UnitQuery(null, method.getDeclaringClass(), nameOf(method.getDeclaringClass()), EXACT_TYPE));
+        qualifier.define(method,
+                UnitQuery.create()
+                    .type(method.getDeclaringClass())
+                    .name(nameOf(method.getDeclaringClass()))
+                    .options(EXACT_TYPE)
+                    .build()
+        );
 
         InjectableMethod constructor = new InjectableMethod(method, qualifier);
         UnitHolder unit = new UnitHolder(idOf(method), method.getReturnType(), constructor, nameOf(method), metadata.strategy());

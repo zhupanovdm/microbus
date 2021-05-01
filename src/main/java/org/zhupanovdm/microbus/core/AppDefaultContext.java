@@ -27,8 +27,8 @@ public class AppDefaultContext implements AppContext {
         this.unitRegistry = new UnitRegistry();
 
         this.qualifierProvider = new DependencyQualifierProvider(
-                new DefaultDependencyQualifier<>(UnitQuery::of),
-                new DefaultDependencyQualifier<>(UnitQuery::of),
+                new DefaultDependencyQualifier<>(parameter -> UnitQuery.create().from(parameter).build()),
+                new DefaultDependencyQualifier<>(field -> UnitQuery.create().from(field).build()),
                 new DefaultDependencyQualifier<>());
 
         this.instanceCreationStrategyProvider = new InstanceCreationStrategyProvider();
